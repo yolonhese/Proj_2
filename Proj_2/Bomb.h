@@ -26,6 +26,5 @@ PositionChar randomizePosition(PositionChar position);
 void show() const; // shows the attributes of the bomb (for debugging)
 private:
 PositionChar targetPos_char;
-PositionInt targetPos_int;
 char targetLine, targetColumn;
 };
