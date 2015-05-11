@@ -8,7 +8,7 @@ Ship::Ship(char symbol, PositionChar position, char orientation, unsigned int si
 	this->orientation = orientation;
 	this->size = size;
 	this->color = color;
-	string stat(symbol,size);
+	string stat(size,symbol);
 	status = stat;
 }
 
