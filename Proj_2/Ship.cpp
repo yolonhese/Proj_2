@@ -146,9 +146,9 @@ bool Ship::moveRand(unsigned int lineMin, unsigned int columnMin, unsigned int l
 
 bool Ship::attack(size_t partNumber)
 {
-	if (partNumber >= 0 && partNumber <= size -1)
+	if (partNumber >= 0 && partNumber <= size)
 	{
-		status[partNumber] = tolower(status[partNumber]);
+		status[partNumber-1] = tolower(status[partNumber-1]);
 		return true;
 	}
 	else
