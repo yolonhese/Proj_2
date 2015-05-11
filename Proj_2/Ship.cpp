@@ -164,6 +164,7 @@ bool Ship::isDestroyed() const
 	{
 		if(islower(status[i]))
 			lower++;
+		i++;
 	}
 
 	float half = size/2;
@@ -189,6 +190,7 @@ void Ship::show() const
 	while(i < size)
 	{
 		cout << status[i];
+		i++;
 	}
 	cout << endl;
 }
