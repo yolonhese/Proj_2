@@ -11,6 +11,7 @@ class Ship
 	public:
 		Ship(char symbol, PositionChar position, char orientation, unsigned int size, unsigned int color);
 		PositionInt convertPositionChartoInt(PositionChar position);
+		PositionChar convertPositionInttoChar(PositionInt position);
 
 
 

@@ -1,4 +1,5 @@
 #include "Ship.h"
+#include <time.h>
 
 Ship::Ship(char symbol, PositionChar position, char orientation, unsigned int size, unsigned int color)
 {
@@ -33,6 +34,24 @@ PositionInt Ship::convertPositionChartoInt(PositionChar position)
 	return convertedPosition;
 }
 
+PositionChar Ship::convertPositionInttoChar(PositionInt position)
+{
+	PositionChar convertedPosition;
+	char x,y;
+
+	x = position.col + 64;
+	y = position.lin + 64;
+
+	convertedPosition.col = tolower(x);
+	convertedPosition.lin = y;
+
+	return convertedPosition;
+
+
+
+}
+
+
 bool Ship::move(char direction, bool rotate, unsigned int lineMin, unsigned int columnMin, unsigned int lineMax, unsigned int columnMax)
 {
 
@@ -49,6 +68,8 @@ bool Ship::move(char direction, bool rotate, unsigned int lineMin, unsigned int 
 			break;
 		case 101:
 			posChar.col = posChar.col + 1;
+			break;
+		case 111:
 			break;
 	}
 
@@ -75,6 +96,52 @@ bool Ship::move(char direction, bool rotate, unsigned int lineMin, unsigned int 
 	return true;
 }
 
+bool Ship::moveRand(unsigned int lineMin, unsigned int columnMin, unsigned int lineMax, unsigned int columnMax)
+{
+	
+	
+	bool rotate;
+	char direction;
+
+	srand (time(NULL));
+	int randomNumber;
+	randomNumber = rand() %5 + 1;
+
+	switch(randomNumber)
+	{
+		case 1:
+			direction = 'n';
+			break;
+		case 2:
+			direction = 's';
+			break;
+		case 3:
+			direction = 'e';
+			break;
+		case 4:
+			direction = 'w';
+			break;
+		case 5:
+			direction = 'o';
+			break;
+	}
+
+	srand (time(NULL));
+	randomNumber = rand() %2 + 1;
+
+		switch(randomNumber)
+	{
+		case 1:
+			rotate = true;
+			break;
+		case 2:
+			rotate = false;
+			break;
+	}
+
+	return	move( direction, rotate, lineMin, columnMin, lineMax, columnMax);
+
+}
 
 
 
