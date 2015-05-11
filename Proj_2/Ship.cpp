@@ -8,7 +8,8 @@ Ship::Ship(char symbol, PositionChar position, char orientation, unsigned int si
 	this->orientation = orientation;
 	this->size = size;
 	this->color = color;
-
+	string stat(symbol,size);
+	status = stat;
 }
 
 PositionInt Ship::convertPositionChartoInt(PositionChar position)
@@ -142,6 +143,56 @@ bool Ship::moveRand(unsigned int lineMin, unsigned int columnMin, unsigned int l
 	return	move( direction, rotate, lineMin, columnMin, lineMax, columnMax);
 
 }
+
+bool Ship::attack(size_t partNumber)
+{
+	if (partNumber >= 0 && partNumber <= size -1)
+	{
+		status[partNumber] = tolower(status[partNumber]);
+		return true;
+	}
+	else
+		return false;
+
+}
+
+bool Ship::isDestroyed() const
+{
+	int i = 0,lower;
+
+	while(i < size)
+	{
+		if(islower(status[i]))
+			lower++;
+	}
+
+	float half = size/2;
+
+	if(lower >= half)
+		return true;
+	else
+		return false;
+
+
+}
+
+void Ship::show() const
+{
+	cout <<"Simbolo: " <<symbol << endl;
+	cout << "Linha de Inicio: " << posChar.lin<< endl;
+	cout << "Coluna de Inicio: " << posChar.col << endl;
+	cout << "Orientacao: " << orientation << endl;
+	cout << "Tamanho: " << size << endl;
+	cout << "Codigo da cor: " << color << endl;
+	cout << "Estado do Navio: ";
+	int i = 0;
+	while(i < size)
+	{
+		cout << status[i];
+	}
+	cout << endl;
+}
+
 
 
 
