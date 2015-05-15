@@ -19,10 +19,11 @@ class Ship
 		bool attack(size_t partNumber); //partNumber = {0,1,…, size-1}
 		bool isDestroyed() const; // checks whether the ship is destroyed
 		void show() const; // shows the attributes of the ship (for debugging)
-		PositionChar getPosition();
-		char getOrientation();
-		unsigned int getSize();
-		char getSymbol();
+		PositionChar getPosition() const;
+		char getOrientation() const;
+		unsigned int getSize() const;
+		char getSymbol() const;
+		unsigned int getColor() const;
 	private:
 		char symbol; // 'P' = "porta-aviões"; 'F' = "fragata"; … (portuguese names)
 		PositionChar posChar; // coordinates of the upper left corner of the ship

@@ -10,7 +10,6 @@ class Board
 		void moveShips(); // tries to randmonly move all the ships of the fleet
 		bool attack(const Bomb &b);
 		void display() const; // displays the colored board during the game
-		void show() const; // shows the attributes of the board (for debugging)
 		void fillBoard(); //fills the board with the index numbers of the "ships" vector
 	private:
 		int numLines, numColumns,area; // redundant info …

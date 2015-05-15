@@ -1,5 +1,31 @@
 #include "Board.h"
 #include <algorithm>
+#include <iomanip>
+#include <windows.h>
+
+#define BLACK 0
+#define BLUE 1
+#define GREEN 2
+#define CYAN 3
+#define RED 4
+#define MAGENTA 5
+#define BROWN 6
+#define LIGHTGRAY 7
+#define DARKGRAY 8
+#define LIGHTBLUE 9
+#define LIGHTGREEN 10
+#define LIGHTCYAN 11
+#define LIGHTRED 12
+#define LIGHTMAGENTA 13
+#define YELLOW 14
+#define WHITE 15
+
+void setColor(unsigned int color, unsigned int background_color)
+{
+	HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE); if (background_color == BLACK)
+	SetConsoleTextAttribute(hCon, color); else
+	SetConsoleTextAttribute(hCon, color | background_color*16+color);
+} 
 
 Board::Board(const string &filename)
 {
@@ -44,44 +70,44 @@ Board::Board(const string &filename)
 		colorInt = atoi(color.c_str());			// "string") para o formato "inteiro"
 
 		PositionChar position;
-		position.lin = posChar.c_str[0];
-		position.col = posChar.c_str[1];
+		position.lin = posChar.c_str()[0];
+		position.col = posChar.c_str()[1];
 
-		Ship defaultShip(symbol.c_str[0],position,orientation.c_str[0],sizeInt,colorInt);
+		Ship defaultShip(symbol.c_str()[0],position,orientation.c_str()[0],sizeInt,colorInt);
 
 		ships.push_back(defaultShip);
 	}
 
 	ficheiroconfig.close();	 //Já nao iremos necessitar mais do ficheiro de configuração. Fecha-se o mesmo.
 
-	fillBoard;
+	fillBoard();
 }
 
 void Board::fillBoard()
 {
-	for(int i = 0; i < board.size; i++)
+	for(unsigned int i = 0; i < board.size(); i++)
 	{
-		for(int ii = 0; ii < board[i].size(); ii++)
+		for(unsigned int ii = 0; ii < board[i].size(); ii++)
 		{
 			board[i][ii] = -1;
 		}
 
 	}
 
-	for(int i = 0; i < ships.size(); i++)
+	for(unsigned int i = 0; i < ships.size(); i++)
 	{
-		PositionChar shipPositionChar = ships[i].getPosition;
+		PositionChar shipPositionChar = ships[i].getPosition();
 		PositionInt shipPostion;
 		shipPostion.lin = int(shipPositionChar.lin) - 64;
 		shipPostion.col = int(toupper(shipPositionChar.col)) -64; 
 
-		if(ships[i].getOrientation == 'H')
-			for(unsigned int z = 0; z < ships[i].getSize; z++)
+		if(ships[i].getOrientation() == 'H')
+			for(unsigned int z = 0; z < ships[i].getSize(); z++)
 			{
 				board[shipPostion.lin][shipPostion.col + z] = i;
 			}
 		else
-			for(unsigned int z = 0; z < ships[i].getSize; z++)
+			for(unsigned int z = 0; z < ships[i].getSize(); z++)
 			{
 				board[shipPostion.lin + z][shipPostion.col] = i;
 			}
@@ -90,7 +116,7 @@ void Board::fillBoard()
 
 bool Board::putShip(const Ship &s)
 {
-	PositionChar shipPositionChar = s.getPosition;
+	PositionChar shipPositionChar = s.getPosition();
 	PositionInt shipPostion;
 		shipPostion.lin = int(shipPositionChar.lin) - 64;
 		shipPostion.col = int(toupper(shipPositionChar.col)) -64;
@@ -98,18 +124,18 @@ bool Board::putShip(const Ship &s)
 		if(shipPostion.lin > numLines || shipPostion.col > numColumns)
 			return 0;
 
-		if(s.getOrientation == 'H')
+		if(s.getOrientation() == 'H')
 			if(shipPostion.col + numColumns - 1 > numColumns)
 				return 0;
-			for(unsigned int z = 0; z < s.getSize; z++)
+			for(unsigned int z = 0; z < s.getSize(); z++)
 			{
 				if(board[shipPostion.lin][shipPostion.col + z] != -1)
 					return 0;
 			}
-		if(s.getOrientation == 'V')
+		if(s.getOrientation() == 'V')
 			if(shipPostion.lin + numLines - 1 > numLines)
 				return 0;
-			for(unsigned int z = 0; z < s.getSize; z++)
+			for(unsigned int z = 0; z < s.getSize(); z++)
 			{
 				if(board[shipPostion.lin + z][shipPostion.col] != -1)
 					return 0;
@@ -121,24 +147,24 @@ bool Board::putShip(const Ship &s)
 			"boards" em relação a "ships". Na prática, o index do novo navio, "s" é adicionado nas posições
 			corretas em "boards"						*/
 			ships.push_back(s);
-			fillBoard;
+			fillBoard();
 			return 1;
 }
 
 void Board::moveShips()
 {
-	for(int i = 0;i < ships.size; i++)
+	for(int i = 0;i < ships.size(); i++)
 	{
 		rotate(ships.begin(),ships.begin()+1,ships.end());
 
 		Ship defaultShip = ships[ships.size() - 1];
 		
 		ships.pop_back();
-		fillBoard;
+		fillBoard();
 
 		do
 		{
-			defaultShip.moveRand;
+			defaultShip.moveRand(1 , 1 , numLines , numColumns);
 		} while (!putShip(defaultShip));
 
 	}
@@ -171,4 +197,60 @@ bool Board::attack(const Bomb &b)
 	ships[shipIndex].attack(partNumber);
 	return 1;
 }
+
+void Board::display() const
+{
+	cout << setw(2);
+	cout << ' ';
+	
+	setColor(YELLOW, BLUE);
+	char letter = 97;
+
+	for (int i = 0; i < numColumns; i++)
+	{
+		cout << setw(2);
+		cout << letter;
+		letter++;
+	}
+
+	letter = 65;
+
+	cout << endl;
+
+	setColor(WHITE, BLACK);
+
+	for (int i = 0; i < numLines; i++)
+	{
+		
+		setColor(YELLOW, BLUE);
+		cout << setw(2);
+		cout << letter;
+		letter++;
+
+		for (int ii = 0; ii < numColumns; ii++)
+		{
+			if(board[i][ii] == -1)
+			{
+				setColor(BLUE,LIGHTGRAY);
+				cout << setw(2);
+				cout << '.';
+			}
+			else
+			{
+				setColor(ships[board[i][ii]].getColor(), LIGHTGRAY);
+				cout << setw(2);
+				cout << ships[board[i][ii]].getSymbol();
+			}
+
+		}
+
+		
+		setColor(WHITE, BLACK);
+		cout << endl;
+	}
+
+
+
+}
+
 

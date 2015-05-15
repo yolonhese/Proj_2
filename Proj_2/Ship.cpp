@@ -53,24 +53,29 @@ PositionChar Ship::convertPositionInttoChar(PositionInt position)
 
 }
 
-PositionChar Ship::getPosition()
+PositionChar Ship::getPosition() const
 {
 	return posChar;
 }
 
-char Ship::getOrientation()
+char Ship::getOrientation() const
 {
 	return orientation;
 }
 
-unsigned int Ship::getSize()
+unsigned int Ship::getSize() const
 {
 	return size;
 }
 
-char Ship::getSymbol()
+char Ship::getSymbol() const
 {
 	return symbol;
+}
+
+unsigned int Ship::getColor() const
+{
+	return color;
 }
 
 bool Ship::move(char direction, bool rotate, unsigned int lineMin, unsigned int columnMin, unsigned int lineMax, unsigned int columnMax)
