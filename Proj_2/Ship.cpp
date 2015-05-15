@@ -1,14 +1,15 @@
 #include "Ship.h"
 #include <time.h>
 
+
 Ship::Ship(char symbol, PositionChar position, char orientation, unsigned int size, unsigned int color)
 {
-	this->symbol = symbol;
+	this->symbol = toupper(symbol);
 	posChar = position;
 	this->orientation = orientation;
 	this->size = size;
 	this->color = color;
-	string stat(size,symbol);
+	string stat(size,toupper(symbol));
 	status = stat;
 }
 
@@ -52,6 +53,25 @@ PositionChar Ship::convertPositionInttoChar(PositionInt position)
 
 }
 
+PositionChar Ship::getPosition()
+{
+	return posChar;
+}
+
+char Ship::getOrientation()
+{
+	return orientation;
+}
+
+unsigned int Ship::getSize()
+{
+	return size;
+}
+
+char Ship::getSymbol()
+{
+	return symbol;
+}
 
 bool Ship::move(char direction, bool rotate, unsigned int lineMin, unsigned int columnMin, unsigned int lineMax, unsigned int columnMax)
 {
@@ -185,14 +205,8 @@ void Ship::show() const
 	cout << "Orientacao: " << orientation << endl;
 	cout << "Tamanho: " << size << endl;
 	cout << "Codigo da cor: " << color << endl;
-	cout << "Estado do Navio: ";
-	int i = 0;
-	while(i < size)
-	{
-		cout << status[i];
-		i++;
-	}
-	cout << endl;
+	cout << "Estado do Navio: " << status << endl;
+	
 }
 
 

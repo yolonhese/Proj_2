@@ -10,16 +10,19 @@ class Ship
 {
 	public:
 		Ship(char symbol, PositionChar position, char orientation, unsigned int size, unsigned int color);
+		Ship(char symbol, unsigned int size, unsigned int color);
 		PositionInt convertPositionChartoInt(PositionChar position);
 		PositionChar convertPositionInttoChar(PositionInt position);
-
-
-
+		void setPosition(PositionChar position,char orientation);
 		bool move(char direction, bool rotate, unsigned int lineMin, unsigned int columnMin, unsigned int lineMax, unsigned int columnMax); // moves the boat (SEE NOTES)
 		bool moveRand(unsigned int lineMin, unsigned int columnMin, unsigned int lineMax, unsigned int columnMax); // moves the ship randomly
 		bool attack(size_t partNumber); //partNumber = {0,1,…, size-1}
 		bool isDestroyed() const; // checks whether the ship is destroyed
 		void show() const; // shows the attributes of the ship (for debugging)
+		PositionChar getPosition();
+		char getOrientation();
+		unsigned int getSize();
+		char getSymbol();
 	private:
 		char symbol; // 'P' = "porta-aviões"; 'F' = "fragata"; … (portuguese names)
 		PositionChar posChar; // coordinates of the upper left corner of the ship

@@ -1,5 +1,7 @@
 #include <iostream>
-
+#include <string>
+#include <vector>
+#include <fstream>
 
 struct PositionChar // to store a board position in char format
 { // example: 'B','d'
