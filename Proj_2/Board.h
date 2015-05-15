@@ -5,6 +5,7 @@
 class Board
 {
 	public:
+		Board();
 		Board(const string &filename); // loads board from file 'filename'
 		bool putShip(const Ship &s); // adds ship to the board, if possible
 		void moveShips(); // tries to randmonly move all the ships of the fleet
