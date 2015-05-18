@@ -15,11 +15,10 @@ Board::Board(const string &filename)
 	ficheiroconfig.open(filename);		// nome gravado em "nome_ficheiro"
 											// para leitura em "ficheiroconfig".
 
-	string descarta,linesStr,columnsStr;	 // Lê a primeira linha do ficheiro até encontrar um espaço
-	getline(ficheiroconfig, descarta, ' ');  // descarta tudo o que está no meio guardando o contúdo na 
-	getline(ficheiroconfig, linesStr, ' '); // variável do tipo string "descarta". Depois do primeiro espaço
-	getline(ficheiroconfig, descarta, ' ');  // guarda o primeiro número do ficheiro em "linhasstr", volta a descartar
-	getline(ficheiroconfig, columnsStr);     // o que está no meio e guarda o último número em "colunasstr"
+	string descarta,linesStr,columnsStr;	
+	getline(ficheiroconfig, linesStr, ' '); 
+	getline(ficheiroconfig, descarta, ' ');
+	getline(ficheiroconfig, columnsStr);
 
 
 	numLines = atoi(linesStr.c_str());	//".c_str()" passa uma string para um array de chars.
@@ -27,25 +26,21 @@ Board::Board(const string &filename)
 	area = numColumns * numLines;
 
 
-	board.resize(numLines + 1);				// Redimensiona os vectores que constituem a estrutura
+	board.resize(numLines);				// Redimensiona os vectores que constituem a estrutura
 	for (int i = 0; i < numLines; i++)	// a ser impressa no ecrã que traduz o tabuleiro 
-		board[i].resize(numColumns);	// Adiciona uma linha/coluna extra para as coordenadas
+		board[i].resize(numColumns);
 
 
 
 	string orientation,posChar,symbol,color,size;
 
-	while (!ficheiroconfig.eof())						//Lê todas as linhas até ao fim do ficheiro
+	while (!ficheiroconfig.eof())						
 	{	
-		getline(ficheiroconfig, symbol, ' ');		// Usamos o mesmo processo
-		getline(ficheiroconfig, descarta, ' ');			// mas desta vez com o objectivo de ler as especificações
-		getline(ficheiroconfig, size, ' ');		// dos navios descritos no ficheiro de configuração.
-	    getline(ficheiroconfig, descarta, ' ');			//			
-		getline(ficheiroconfig, posChar, ' ');//
-		getline(ficheiroconfig, descarta, ' ');			//
-		getline(ficheiroconfig, orientation, ' ');		//
-		getline(ficheiroconfig, descarta, ' ');			//
-		getline(ficheiroconfig, color);				//
+		getline(ficheiroconfig, symbol, ' ');				
+		getline(ficheiroconfig, size, ' ');						
+		getline(ficheiroconfig, posChar, ' ');
+		getline(ficheiroconfig, orientation, ' ');		
+		getline(ficheiroconfig, color);				
 
 		unsigned int sizeInt,colorInt;
 		sizeInt = atoi(size.c_str());			// Mais uma vez, convertemos os números (que estão em formato
@@ -63,7 +58,15 @@ Board::Board(const string &filename)
 	ficheiroconfig.close();	 //Já nao iremos necessitar mais do ficheiro de configuração. Fecha-se o mesmo.
 
 	fillBoard();
+
 }
+
+void Board::show()
+{
+	cout << "linhas: " << numLines << endl;
+	cout << "colunas: " << numColumns << endl;
+}
+
 
 #define BLACK 0
 #define BLUE 1
@@ -112,12 +115,12 @@ void Board::fillBoard()
 		if(ships[i].getOrientation() == 'H')
 			for(unsigned int z = 0; z < ships[i].getSize(); z++)
 			{
-				board[shipPostion.lin][shipPostion.col + z] = i;
+				board[shipPostion.lin - 1][shipPostion.col + z - 1] = i;
 			}
-		else
-			for(unsigned int z = 0; z < ships[i].getSize(); z++)
+		if(ships[i].getOrientation() == 'V')
+			for(unsigned int w = 0; w < ships[i].getSize(); w++)
 			{
-				board[shipPostion.lin + z][shipPostion.col] = i;
+				board[shipPostion.lin + w - 1][shipPostion.col - 1] = i;
 			}
 	}
 }
@@ -133,7 +136,7 @@ bool Board::putShip(const Ship &s)
 			return 0;
 
 		if(s.getOrientation() == 'H')
-			if(shipPostion.col + numColumns - 1 > numColumns)
+			if(shipPostion.col + s.getSize() - 1 > numColumns)
 				return 0;
 			for(unsigned int z = 0; z < s.getSize(); z++)
 			{
@@ -141,7 +144,7 @@ bool Board::putShip(const Ship &s)
 					return 0;
 			}
 		if(s.getOrientation() == 'V')
-			if(shipPostion.lin + numLines - 1 > numLines)
+			if(shipPostion.lin + s.getSize() - 1 > numLines)
 				return 0;
 			for(unsigned int z = 0; z < s.getSize(); z++)
 			{
@@ -165,13 +168,14 @@ void Board::moveShips()
 	{
 		rotate(ships.begin(),ships.begin()+1,ships.end());
 
-		Ship defaultShip = ships[ships.size() - 1];
+		Ship defaultShip = ships[ships.size() - 1], backupShip = defaultShip;
 		
 		ships.pop_back();
 		fillBoard();
 
 		do
 		{
+			defaultShip = backupShip;
 			defaultShip.moveRand(1 , 1 , numLines , numColumns);
 		} while (!putShip(defaultShip));
 
@@ -260,5 +264,3 @@ void Board::display() const
 
 
 }
-
-

@@ -1,4 +1,8 @@
 #include "Player.h"
+Player::Player()
+{
+
+}
 
 Player::Player(string playerName, string boardFilename)
 {
@@ -24,9 +28,7 @@ void Player::attackBoard(const Bomb &b)
 	board.attack(b);
 }
 
-
-
-
-
-
-
+string Player::getName()
+{
+	return name;
+}

@@ -80,20 +80,21 @@ unsigned int Ship::getColor() const
 
 bool Ship::move(char direction, bool rotate, unsigned int lineMin, unsigned int columnMin, unsigned int lineMax, unsigned int columnMax)
 {
-
+	PositionChar backupPosition = posChar;
+	char backupOrientation = orientation;
 	switch(direction)
 	{
 		case 110:
-			posChar.lin = posChar.lin - 1;
+			backupPosition.lin = backupPosition.lin - 1;
 			break;
 		case 115:
-			posChar.lin = posChar.lin + 1;
+			backupPosition.lin = backupPosition.lin + 1;
 			break;
 		case 119:
-			posChar.col = posChar.col - 1;
+			backupPosition.col = backupPosition.col - 1;
 			break;
 		case 101:
-			posChar.col = posChar.col + 1;
+			backupPosition.col = backupPosition.col + 1;
 			break;
 		case 111:
 			break;
@@ -102,23 +103,24 @@ bool Ship::move(char direction, bool rotate, unsigned int lineMin, unsigned int 
 
 	if (rotate)
 	{
-		if (orientation == 'H')
-			orientation = 'V';
+		if (backupOrientation == 'H')
+			backupOrientation = 'V';
 		else
-			orientation = 'H';
+			backupOrientation = 'H';
 	}
 
-	if (lineMin > convertPositionChartoInt(posChar).lin || columnMin > convertPositionChartoInt(posChar).col)
+	if (lineMin > convertPositionChartoInt(backupPosition).lin || columnMin > convertPositionChartoInt(backupPosition).col)
 		return false;
 
-
-	if (orientation == 'H')
-		if((convertPositionChartoInt(posChar).col + size - 1) > columnMax)
+	if (backupOrientation == 'H')
+		if((convertPositionChartoInt(backupPosition).col + size - 1) > columnMax)
 			return false;
 	else
-		if((convertPositionChartoInt(posChar).lin + size - 1) > lineMax)
+		if((convertPositionChartoInt(backupPosition).lin + size - 1) > lineMax)
 			return false;
 
+	posChar = backupPosition;
+	orientation = backupOrientation;
 	return true;
 }
 
@@ -213,7 +215,3 @@ void Ship::show() const
 	cout << "Estado do Navio: " << status << endl;
 	
 }
-
-
-
-

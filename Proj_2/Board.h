@@ -12,6 +12,7 @@ class Board
 		bool attack(const Bomb &b);
 		void display() const; // displays the colored board during the game
 		void fillBoard(); //fills the board with the index numbers of the "ships" vector
+		void show();
 	private:
 		int numLines, numColumns,area; // redundant info …
 		vector<Ship> ships; // ships that are placed on the board
