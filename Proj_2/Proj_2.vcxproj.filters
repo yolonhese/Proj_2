@@ -49,5 +49,8 @@
     <None Include="conf.tab">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="topTen.top">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

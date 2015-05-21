@@ -173,11 +173,15 @@ void Board::moveShips()
 		ships.pop_back();
 		fillBoard();
 
+		int z = 20;
 		do
 		{
 			defaultShip = backupShip;
 			defaultShip.moveRand(1 , 1 , numLines , numColumns);
-		} while (!putShip(defaultShip));
+			if (putShip(defaultShip))
+				break;
+			z--;
+		} while (z >= 0);
 
 	}
 }
