@@ -15,6 +15,8 @@ struct playerLog
 
 };
 
+//teste branch reesre
+
 Player firstToPlay(Player a,Player b)
 {
 	srand(time(NULL));
@@ -32,7 +34,16 @@ Player firstToPlay(Player a,Player b)
 
 }
 
-//void Game(vector<
+void Game(vector<playerLog> topTen, Player &P1,Player &P2)
+{
+
+
+
+
+
+
+}
+
 
 
 
@@ -55,9 +66,13 @@ int main()
 	cin >> boardFileName;
 	Player P2(p2Name,boardFileName);
 
+	Player backupPlayer;
+	backupPlayer = firstToPlay(P1,P2);
+
+
 	
 
-
+	 
 
 	system("pause");
 
