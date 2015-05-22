@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Ship.h"
+#include <vector>
 
 
 class Board
@@ -12,11 +13,12 @@ class Board
 		bool attack(const Bomb &b);
 		void display() const; // displays the colored board during the game
 		void fillBoard(); //fills the board with the index numbers of the "ships" vector
-		void show();
+		vector<Ship> getShips();
+		int getSize();
+		int getShipArea();
+		friend ostream& operator<< (ostream &out, Board &toDisplay);
 	private:
-		int numLines, numColumns,area; // redundant info …
-		vector<Ship> ships; // ships that are placed on the board
-		vector<vector<int>> board; // each element indicates
-		// the index of a ship in the 'ships' vector
-		// (in the range 0..ships.size()-1) ;
+		int numLines, numColumns; 
+		vector<Ship> ships; 
+		vector<vector<int>> board;
 };

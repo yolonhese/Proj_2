@@ -10,7 +10,6 @@ class Ship
 {
 	public:
 		Ship(char symbol, PositionChar position, char orientation, unsigned int size, unsigned int color);
-		Ship(char symbol, unsigned int size, unsigned int color);
 		PositionInt convertPositionChartoInt(PositionChar position);
 		PositionChar convertPositionInttoChar(PositionInt position);
 		void setPosition(PositionChar position,char orientation);
@@ -30,9 +29,5 @@ class Ship
 		char orientation; // 'H' = horizontal; 'V' = vertical
 		unsigned int size; // number os cells occupied by the ship, on the board
 		unsigned int color; // color code: o=BLACK, 1=BLUE, … (see annex of 1st proj.)
-		string status; // status[i]: uppercase = good; lowercase = damaged
-		// ex: "FFFF" means that the "fragata" is intact;
-		// ex: "FFfF" means that the 'partNumber' 2 was hit by a bomb
-		// OTHER ATTRIBUTES OR METHODS, if necessary
-		// ...
+		string status;
 };

@@ -12,8 +12,10 @@ Board::Board()
 Board::Board(const string &filename)
 {
 	ifstream ficheiroconfig;				// Abre o ficheiro com as configurações com o 
-	ficheiroconfig.open(filename);		// nome gravado em "nome_ficheiro"
+	ficheiroconfig.open("conf_files/" + filename);		// nome gravado em "nome_ficheiro"
 											// para leitura em "ficheiroconfig".
+
+
 
 	string descarta,linesStr,columnsStr;	
 	getline(ficheiroconfig, linesStr, ' '); 
@@ -59,12 +61,6 @@ Board::Board(const string &filename)
 
 	fillBoard();
 
-}
-
-void Board::show()
-{
-	cout << "linhas: " << numLines << endl;
-	cout << "colunas: " << numColumns << endl;
 }
 
 
@@ -268,3 +264,50 @@ void Board::display() const
 
 
 }
+
+/*
+"getShips" retorna o vector de navios colocados no tabuleiro
+*/
+vector<Ship> Board::getShips()
+{
+	return ships;
+}
+
+/*
+Retorna a área do tabuleiro.
+*/
+int Board::getSize()
+{
+	return numLines * numColumns;
+}
+
+/*
+A função retorna a área total ocupada pelos navios no tabuleiro.
+Para chegar ao resultado total soma em "totalArea" o tamanho de todos os navios no vetor.
+*/
+int Board::getShipArea()
+{
+	int totalArea = 0;
+	for(int i = 0; i < ships.size(); i++)
+	{
+		totalArea = totalArea + ships[i].getSize();
+	}
+
+	return totalArea;
+
+}
+
+
+
+/*
+Aqui fazemos o overloading do operador "<<"
+Uma vez que a única função que imprime no ecrã é 
+a função "display", é tambem a úica a ser chamada. */
+ostream& operator<< (ostream &out, Board &toDisplay)
+{
+	toDisplay.display();
+	return out;
+
+}
+
+
