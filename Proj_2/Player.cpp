@@ -103,6 +103,12 @@ Board Player::getBoard()
 	return board;
 }
 
+int Player::getIndex()
+{
+	return index;
+}
+
+
 
 
 

@@ -8,6 +8,94 @@
 
 using namespace std;
 
+void centrar(string s)//Funçao que centra o texto do menu
+{
+	int l=s.size();
+	int pos=(int)((80-l)/2);
+	for(int i=0;i<pos;i++)
+	cout<<" ";
+ 
+	cout<<s;
+}
+
+int menu()
+{
+        string Menu[4] = {"Start Game", "Create Board", "TOP10", "Exit"};
+        int pointer = 0;
+       
+        while(true)
+        {
+                system("cls");
+               
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+                centrar("Menu");
+                cout<<endl<<endl;
+               
+                for (int i = 0; i < 4; ++i) //Trocar a cor para opcao selecionada
+                {
+                        if (i == pointer)
+                        {
+                                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
+                                centrar(Menu[i]);
+                                        cout << endl;
+                        }
+                        else
+                        {
+                                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+                                centrar(Menu[i]);
+                                        cout << endl;
+                        }
+                }
+               
+                while(true) //Detectar setas
+                {
+                        if (GetAsyncKeyState(VK_UP) != 0)
+                        {
+                                pointer -= 1;
+                                if (pointer == -1)
+                                {
+                                        pointer = 2;
+                                }
+                                break;
+                        }
+                        else if (GetAsyncKeyState(VK_DOWN) != 0)
+                        {
+                                pointer += 1;
+                                if (pointer == 4)
+                                {
+                                        pointer = 0;
+                                }
+                                break;
+                        }
+                        else if (GetAsyncKeyState(VK_RETURN) != 0)
+                        {
+                                switch (pointer)
+                                {
+                                        case 0:
+                                        {
+                                                cout << "\n\n\nStarting new game...";
+                                                Sleep(1000);
+                                        } break;
+                                        case 1:
+                                        {
+                                                cout << "\n\n\nThis is the options...";
+                                                Sleep(1000);
+                                        } break;
+                                        case 2:
+                                        {
+                                                return 0;
+                                        } break;
+                                }
+                                break;
+                        }
+                }
+               
+                Sleep(150);
+        }
+       
+        return 0;
+}
+
 struct topScore
 			{
 				float score;
@@ -177,7 +265,7 @@ void addToTop(Player someone)
 
 void Game(Player &P1,Player &P2)
 {
-	float p1Moves,p2Moves,winnerMoves;
+	float p1Moves = 0,p2Moves = 0,winnerMoves;
 	Player winner,looser;
 	while (true)
 	{
@@ -214,26 +302,28 @@ void Game(Player &P1,Player &P2)
 int main()
 {
 
-	/*string p1Name,p2Name,boardFileName;
+	string p1Name,p2Name,boardFileName;
 
 	cout << "PLAYER 1" << endl;
 	cout << "Name: ";
-	cin >> p1Name;
+	//cin >> p1Name;
 	cout << "Board configuration file name: ";
-	cin >> boardFileName;
-	Player P1(p1Name,boardFileName);
+	//cin >> boardFileName;
+	//Player P1(p1Name,boardFileName);
+	Player P1("simao","conf.tab");
 
 	cout << "PLAYER 2" << endl;
 	cout << "Name: ";
-	cin >> p2Name;
+	//cin >> p2Name;
 	cout << "Board configuration file name: ";
-	cin >> boardFileName;
-	Player P2(p2Name,boardFileName);
-
-	Player backupPlayer;*/
-
-	Player p;
-	addToTop(p);
+	//cin >> boardFileName;
+	//Player P2(p2Name,boardFileName);
+	Player P2("reis","conf.tab");
+	firstToPlay(P1,P2);
+	if(P1.getIndex() == 1)
+		Game(P1,P2);
+	else
+		Game(P2,P1);
 
 	 
 

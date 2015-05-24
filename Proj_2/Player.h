@@ -17,6 +17,7 @@ class Player
 		int getShipArea();
 		void giveScore(float number);
 		float getScore();
+		int getIndex();
 		friend ostream& operator<< (ostream &out, Player manoel);
 	private:
 		string name; 

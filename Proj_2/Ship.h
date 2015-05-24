@@ -17,12 +17,19 @@ class Ship
 		bool moveRand(unsigned int lineMin, unsigned int columnMin, unsigned int lineMax, unsigned int columnMax); // moves the ship randomly
 		bool attack(size_t partNumber); //partNumber = {0,1,…, size-1}
 		bool isDestroyed() const; // checks whether the ship is destroyed
+
 		void show() const; // shows the attributes of the ship (for debugging)
+		
+		void giveStatus(string newStatus);
+
+		//fuções get...()
 		Position<char> getPosition() const;
 		char getOrientation() const;
 		unsigned int getSize() const;
 		char getSymbol() const;
 		unsigned int getColor() const;
+		string getStatus() const;
+
 	private:
 		char symbol; // 'P' = "porta-aviões"; 'F' = "fragata"; … (portuguese names)
 		Position<char> posChar; // coordinates of the upper left corner of the ship

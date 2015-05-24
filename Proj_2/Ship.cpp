@@ -185,7 +185,7 @@ bool Ship::attack(size_t partNumber)
 
 bool Ship::isDestroyed() const
 {
-	int i = 0,lower;
+	int i = 0,lower = 0;
 
 	while(i < size)
 	{
@@ -203,6 +203,17 @@ bool Ship::isDestroyed() const
 
 
 }
+
+void Ship::giveStatus(string newStatus)
+{
+	status = newStatus;
+}
+
+string Ship::getStatus() const
+{
+	return status;
+}
+
 
 void Ship::show() const
 {

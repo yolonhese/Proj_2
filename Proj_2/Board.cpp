@@ -12,7 +12,7 @@ Board::Board()
 Board::Board(const string &filename)
 {
 	ifstream ficheiroconfig;							// Abre o ficheiro com as configurações com o 
-	ficheiroconfig.open("conf_files/" + filename);		// nome gravado em "nome_ficheiro"
+	ficheiroconfig.open("board_files/" + filename);		// nome gravado em "nome_ficheiro"
 														// para leitura em "ficheiroconfig".
 
 	
@@ -190,13 +190,13 @@ bool Board::attack(const Bomb &b)
 
 	int partNumber,shipIndex;
 	shipIndex = board[impactPos.lin][impactPos.col];
-	shipPos.lin = int(ships[shipIndex].getPosition().lin) - 64;
-	shipPos.col = int(toupper(ships[shipIndex].getPosition().col)) -64;
-
 	
 
 	if(board[impactPos.lin][impactPos.col] == -1)
 		return 0;
+
+	shipPos.lin = int(ships[shipIndex].getPosition().lin) - 64;
+	shipPos.col = int(toupper(ships[shipIndex].getPosition().col)) -64;
 
 
 

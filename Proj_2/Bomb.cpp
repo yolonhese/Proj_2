@@ -56,7 +56,10 @@ Position<char> Bomb::randomizePosition(Position<char> position)
 {
 	Position<int>  original,north,south,east,west;
 	original = convertPositionChartoInt(position);
-	north,south,east,west = original;
+	north = original;
+	south = original;
+	east = original;
+	west = original;
 
 	north.lin = original.lin + 1;
 	south.lin = original.lin - 1;
