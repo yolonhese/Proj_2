@@ -18,7 +18,7 @@ void Player::showBoard() const
 	cout << toDisplay;
 }
 
-Bomb Player::getBomb(PositionChar bombTarget) const
+Bomb Player::getBomb(Position<char> bombTarget) const
 {
 	Bomb createdBomb(bombTarget);
 	return createdBomb;
@@ -81,6 +81,30 @@ int Player::getShipArea()
 {
 	return board.getShipArea();
 }
+
+/*
+Atribui ao jogador a sua pontuação
+*/
+void Player::giveScore(float number)
+{
+	score = number;
+}
+
+/*
+Devolve a potuação do jogador. Isto apenas é usado no caso do mesmo ser vencedor.
+*/
+float Player::getScore()
+{
+	return score;
+}
+
+Board Player::getBoard()
+{
+	return board;
+}
+
+
+
 
 
 

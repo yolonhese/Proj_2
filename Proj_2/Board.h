@@ -16,6 +16,8 @@ class Board
 		vector<Ship> getShips();
 		int getSize();
 		int getShipArea();
+		int getMaxLine();
+		int getMaxColumn();
 		friend ostream& operator<< (ostream &out, Board &toDisplay);
 	private:
 		int numLines, numColumns; 

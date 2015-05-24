@@ -11,11 +11,11 @@ Board::Board()
 
 Board::Board(const string &filename)
 {
-	ifstream ficheiroconfig;				// Abre o ficheiro com as configurações com o 
+	ifstream ficheiroconfig;							// Abre o ficheiro com as configurações com o 
 	ficheiroconfig.open("conf_files/" + filename);		// nome gravado em "nome_ficheiro"
-											// para leitura em "ficheiroconfig".
+														// para leitura em "ficheiroconfig".
 
-
+	
 
 	string descarta,linesStr,columnsStr;	
 	getline(ficheiroconfig, linesStr, ' '); 
@@ -25,7 +25,7 @@ Board::Board(const string &filename)
 
 	numLines = atoi(linesStr.c_str());	//".c_str()" passa uma string para um array de chars.
 	numColumns = atoi(columnsStr.c_str());	// A função "atoi" retorna um inteiro a partir de um array de chars
-	area = numColumns * numLines;
+
 
 
 	board.resize(numLines);				// Redimensiona os vectores que constituem a estrutura
@@ -48,7 +48,7 @@ Board::Board(const string &filename)
 		sizeInt = atoi(size.c_str());			// Mais uma vez, convertemos os números (que estão em formato
 		colorInt = atoi(color.c_str());			// "string") para o formato "inteiro"
 
-		PositionChar position;
+		Position<char> position;
 		position.lin = posChar.c_str()[0];
 		position.col = posChar.c_str()[1];
 
@@ -103,8 +103,8 @@ void Board::fillBoard()
 
 	for(unsigned int i = 0; i < ships.size(); i++)
 	{
-		PositionChar shipPositionChar = ships[i].getPosition();
-		PositionInt shipPostion;
+		Position<char> shipPositionChar = ships[i].getPosition();
+		Position<int> shipPostion;
 		shipPostion.lin = int(shipPositionChar.lin) - 64;
 		shipPostion.col = int(toupper(shipPositionChar.col)) -64; 
 
@@ -123,8 +123,8 @@ void Board::fillBoard()
 
 bool Board::putShip(const Ship &s)
 {
-	PositionChar shipPositionChar = s.getPosition();
-	PositionInt shipPostion;
+	Position<char> shipPositionChar = s.getPosition();
+	Position<int> shipPostion;
 		shipPostion.lin = int(shipPositionChar.lin) - 64;
 		shipPostion.col = int(toupper(shipPositionChar.col)) -64;
 
@@ -184,7 +184,7 @@ void Board::moveShips()
 
 bool Board::attack(const Bomb &b)
 {
-	PositionInt impactPos,shipPos;
+	Position<int> impactPos,shipPos;
 	impactPos.lin = int(b.getTargetPosition().lin) - 64;
 	impactPos.col = int(toupper(b.getTargetPosition().col)) -64;
 
@@ -296,6 +296,18 @@ int Board::getShipArea()
 	return totalArea;
 
 }
+
+int Board::getMaxLine()
+{
+	return numLines;
+}
+
+int Board::getMaxColumn()
+{
+	return numColumns;
+}
+
+
 
 
 

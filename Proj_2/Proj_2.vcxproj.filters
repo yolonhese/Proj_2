@@ -46,11 +46,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="topTen.top">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="conf_files\conf.tab">
       <Filter>Source Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="topTen.log">
+      <Filter>Source Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
