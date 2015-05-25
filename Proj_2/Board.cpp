@@ -3,6 +3,22 @@
 #include <iomanip>
 #include <windows.h>
 
+
+void columnCenter()
+{
+	for(int  i = 0; i < 10;i++)
+		cout << endl;
+}
+void lineCenter(string s)
+{
+	int l=s.size();
+	int pos=(int)((80-l)/2);
+	for(int i=0;i<pos;i++)
+	cout<<" ";
+ 
+	cout<<s;
+}
+
 Board::Board()
 {
 

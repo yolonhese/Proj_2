@@ -5,10 +5,20 @@
 
 
 
-
 using namespace std;
 
-void centrar(string s)//Funçao que centra o texto do menu
+
+/*
+columnCenter e lineCenter foram criadas com um propósito meramente estético
+A primeira imprime linhas vazias até +/- o centro da consola e a segunda imprime a string "s" no
+centro da linha em que se encontra o cursor.
+*/
+void columnCenter()
+{
+	for(int  i = 0; i < 10;i++)
+		cout << endl;
+}
+void lineCenter(string s)
 {
 	int l=s.size();
 	int pos=(int)((80-l)/2);
@@ -18,83 +28,8 @@ void centrar(string s)//Funçao que centra o texto do menu
 	cout<<s;
 }
 
-int menu()
-{
-        string Menu[4] = {"Start Game", "Create Board", "TOP10", "Exit"};
-        int pointer = 0;
-       
-        while(true)
-        {
-                system("cls");
-               
-                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
-                centrar("Menu");
-                cout<<endl<<endl;
-               
-                for (int i = 0; i < 4; ++i) //Trocar a cor para opcao selecionada
-                {
-                        if (i == pointer)
-                        {
-                                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
-                                centrar(Menu[i]);
-                                        cout << endl;
-                        }
-                        else
-                        {
-                                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
-                                centrar(Menu[i]);
-                                        cout << endl;
-                        }
-                }
-               
-                while(true) //Detectar setas
-                {
-                        if (GetAsyncKeyState(VK_UP) != 0)
-                        {
-                                pointer -= 1;
-                                if (pointer == -1)
-                                {
-                                        pointer = 2;
-                                }
-                                break;
-                        }
-                        else if (GetAsyncKeyState(VK_DOWN) != 0)
-                        {
-                                pointer += 1;
-                                if (pointer == 4)
-                                {
-                                        pointer = 0;
-                                }
-                                break;
-                        }
-                        else if (GetAsyncKeyState(VK_RETURN) != 0)
-                        {
-                                switch (pointer)
-                                {
-                                        case 0:
-                                        {
-                                                cout << "\n\n\nStarting new game...";
-                                                Sleep(1000);
-                                        } break;
-                                        case 1:
-                                        {
-                                                cout << "\n\n\nThis is the options...";
-                                                Sleep(1000);
-                                        } break;
-                                        case 2:
-                                        {
-                                                return 0;
-                                        } break;
-                                }
-                                break;
-                        }
-                }
-               
-                Sleep(150);
-        }
-       
-        return 0;
-}
+
+
 
 struct topScore
 			{
@@ -114,35 +49,62 @@ void firstToPlay(Player &a,Player &b)
 	srand(time(NULL));
 	int randomNumber = rand() %2 + 1;
 
-	
+	columnCenter();
 	if (randomNumber == 1)
 	{	
 		a.giveIndex(1);
 		b.giveIndex(2);
-		cout << a.getName() + " is the first one to play" << endl;
+		lineCenter( a.getName() + " is the first one to play");
 	}
 	if (randomNumber == 2)
 	{
 		b.giveIndex(1);
 		a.giveIndex(2);
-		cout << b.getName() + " is the first one to play" << endl;
+		lineCenter( b.getName() + " is the first one to play");
 	}
 
 }
 
-
+/*
+	A função "playing" corresponde a uma jogada em que o jogador "a" está a atacar
+	o jogador "b". Faz uso da função "clock" para calcular o tempo que a jogada demora
+	a ser executada. O tempo total é guardado na variável "end" que é devolvida pela função
+	para que possa ser posteriormente calculada a pontuação do jogador em "game".
+	Em primeiro lugar é impresso na consola o tabuleiro de "b". De seguida a função espera
+	pela introdução das coordenadas para a criação da bomba "theBomb" que irá ser enviada.
+	Caso as coordenadas não estejam no formato [A-Z][a-z] em que z representa limite do tabuleiro
+	que poderá ir até Z/z, é apresentada uma mensagem de erro e requesitada uma nova introdução
+	de valores até que estes sejam válidos.
+	Depois de validar as coordenadas inseridas, é criada a bomba, estando sujeita a desvios de 
+	rota, e é atacado o tabuleiro de b.
+*/
 float playing(Player &a, Player &b)
 {
 	//neste cenário, "a" está a atacar "b"
 	float begin = clock(); //regista o início da jogada
 	Position<char> bombCoordinates;
 	bool valid = 1;
-	
+
+
+	system("cls");
+	columnCenter();
+	lineCenter("GET READY");
+	cout << endl;
+	lineCenter(a.getName());
+	Sleep(1500);
 	do
 	{
-		cout << "Take a look at " << b.getName() << "'s board" << endl;
-		cout << b << endl;
-		cout << "Insert the coordinates for the bomb (LineColumn): ";
+		char maxLin = b.getBoard().getMaxLine() + 65;
+		char maxCol = b.getBoard().getMaxColumn() + 97;
+		system("cls");
+		cout << endl << endl;
+		cout << b.getName() << "'S BOARD" << endl;
+		
+		cout << "COORDINATES [A - ";
+		cout << maxLin;
+		cout << "][a - ";
+		cout << maxCol;
+		cout << "]	";
 
 		string typedCoordinates;
 		cin >> typedCoordinates;
@@ -153,13 +115,15 @@ float playing(Player &a, Player &b)
 		bombCoordinates.lin = typedCoordinates.c_str()[0];
 		bombCoordinates.col = typedCoordinates.c_str()[1];
 
-		if((b.getBoard().getMaxLine() < int(bombCoordinates.lin) - 65) || (b.getBoard().getMaxColumn() < int(toupper(bombCoordinates.col)) - 65))
+		if((b.getBoard().getMaxLine() < int(bombCoordinates.lin) - 65) || (b.getBoard().getMaxColumn() < int(toupper(bombCoordinates.col)) - 65) || (bombCoordinates.lin < 65) || (bombCoordinates.lin > 90) || (bombCoordinates.col < 97) || (bombCoordinates.col > 122) ) 
 		{
 			valid = 0;
 			system("cls");
-			cout << "Please enter valid coordiates" << endl;
-			Sleep(1000);
-			system("cls");
+			columnCenter();
+			lineCenter("ERROR");
+			cout << endl;
+			lineCenter("Invalid coordinates");
+			Sleep(1500);
 		}
 		
 	}while (!valid);
@@ -168,9 +132,14 @@ float playing(Player &a, Player &b)
 
 
 	Bomb theBomb(bombCoordinates, b.getBoard().getMaxLine(),b.getBoard().getMaxColumn());
-	cout << "The bomb will be dropped in the position ";
+	system("cls");
+	columnCenter();
+	lineCenter("BOMB FELLL IN");
+	cout << endl << endl;
+	lineCenter(" ");
 	cout << theBomb.getTargetPosition().lin;
 	cout << theBomb.getTargetPosition().col << endl;
+	Sleep(1500);
 
 	b.attackBoard(theBomb);
 
@@ -265,7 +234,17 @@ void addToTop(Player someone)
 }
 
 
-void Game(Player &P1,Player &P2)
+/*
+A função "game" corresponde ao conjunto de todas as jogadas, sequenciais do jogo.
+P1 é o primeiro a jogar. No final de cada jogada é verificado se o adversário
+foi derrotado (isDefeated). Caso se verifique, o último a jogar é copiado
+para a variável winner e a soma dos seus tempos (retirada da soma de todos os 
+retornos da função "playing" de cada vez que o jogador fazia uma jogada) é guardada em 
+"winnerMoves". No fim é calculado o score pela fórmula  Moves * AreaOcupada / AreaTotal,
+é impresso na consola o nome e a pontuação do vencedor e o seu score é comparado com
+o top ten de scores do jogo com "addToTop".
+*/
+void game(Player &P1,Player &P2)
 {
 	float p1Moves = 0,p2Moves = 0,winnerMoves;
 	Player winner,looser;
@@ -290,14 +269,238 @@ void Game(Player &P1,Player &P2)
 	}
 
 	float score;
+	string score_str;
 	score = winnerMoves * winner.getShipArea() / winner.getBoardSize();
+	score_str = to_string(score);
 
-	cout << looser.getBoard() << endl;
+	system("cls");
+	columnCenter();
+	lineCenter("WINNER");
+	cout << endl;
+	lineCenter(winner.getName());
+	Sleep(1500);
 
-	cout << "The winner is " << winner.getName() << endl << " with " << score << " points!";
+	system("cls");
+	columnCenter();
+	lineCenter("SCORE");
+	cout << endl;
+	lineCenter(score_str);
+	Sleep(1500);
 
 	winner.giveScore(score);
 	addToTop(winner);
+}
+
+int menu()
+{
+        string Menu[4] = {"Start Game", "Create Board", "TOP10", "Exit"};
+        int pointer = 0;
+       
+        while(true)
+        {
+                system("cls");
+               
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+                lineCenter("Menu");
+                cout<<endl<<endl;
+               
+                for (int i = 0; i < 4; ++i) //Trocar a cor para opcao selecionada
+                {
+                        if (i == pointer)
+                        {
+                                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
+                                lineCenter(Menu[i]);
+                                        cout << endl;
+                        }
+                        else
+                        {
+                                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+                                lineCenter(Menu[i]);
+                                        cout << endl;
+                        }
+                }
+               
+                while(true) //Detectar setas
+                {
+                        if (GetAsyncKeyState(VK_UP) != 0)
+                        {
+                                pointer -= 1;
+                                if (pointer == -1)
+                                {
+                                        pointer = 2;
+                                }
+                                break;
+                        }
+                        else if (GetAsyncKeyState(VK_DOWN) != 0)
+                        {
+                                pointer += 1;
+                                if (pointer == 4)
+                                {
+                                        pointer = 0;
+                                }
+                                break;
+                        }
+                        else if (GetAsyncKeyState(VK_RETURN) != 0)
+                        {
+                                switch (pointer)
+                                {
+                                        case 0:
+                                        {
+											//Este trecho corre quando selecionada a entrada "Start Game"
+											string p1Name,p2Name,boardFileName;
+
+											//Criação de P1
+											system("cls");
+											columnCenter();
+											lineCenter("P1");
+											Sleep(1500);
+
+											system("cls");
+											columnCenter();
+											lineCenter("NAME");
+											lineCenter(" ");
+											cin >> p1Name;
+
+											system("cls");
+											columnCenter();
+											lineCenter("BOARD FILE");
+											cout << endl << endl;
+											lineCenter(" ");
+											cin >> boardFileName;
+
+											/*As linhas seguintes verificam a existência do ficheiro escolhido pelo jogador.
+											Caso não exista, é apresentada uma mensagem de erro e é requesitada um novo nome de
+											ficheiro. Isto repete-se até que o nome do ficheiro introduzido seja validado.
+											*/
+											ifstream isThere;
+											isThere.open("board_files/" + boardFileName);
+											while(!isThere.good())
+											{
+												isThere.close();
+												system("cls");
+												columnCenter();
+												lineCenter("ERROR");
+												cout << endl << endl;
+												lineCenter( "The file you specified does not exist");
+												Sleep(1500);
+												system("cls");
+
+												columnCenter();
+												lineCenter("BOARD FILE");
+												cout << endl << endl;
+												lineCenter(" ");
+												cin >> boardFileName;
+
+												isThere.open("board_files/" + boardFileName);
+											}
+											isThere.close();
+
+											Player P1(p1Name,boardFileName);
+
+											//Criação de P2
+											system("cls");
+											columnCenter();
+											lineCenter("P2");
+											Sleep(1500);
+
+											system("cls");
+											columnCenter();
+											lineCenter("NAME");
+											lineCenter(" ");
+											cin >> p2Name;
+											/*
+											Verifica se o nome escolhido por P2 é igual ao de P1.
+											Caso seja apresenta uma mensagem de erro até que seja
+											introduzido um nome diferente.
+											*/
+											while (p2Name == p1Name)
+											{
+												system("cls");
+												columnCenter();
+												lineCenter("ERROR");
+												cout << endl << endl;
+												lineCenter("You must choose a different name from your opponent");
+												Sleep(1500);
+												system("cls");
+												columnCenter();
+												lineCenter("NAME");
+												lineCenter(" ");
+												cin >> p2Name;
+											}
+
+											system("cls");
+											columnCenter();
+											lineCenter("BOARD FILE");
+											cout << endl << endl;
+											lineCenter(" ");
+											cin >> boardFileName;
+
+											/*As linhas seguintes verificam a existência do ficheiro escolhido pelo jogador.
+											Caso não exista, é apresentada uma mensagem de erro e é requesitada um novo nome de
+											ficheiro. Isto repete-se até que o nome do ficheiro introduzido seja validado.								
+											*/
+											isThere.open("board_files/" + boardFileName);
+											while(!isThere.good())
+											{
+												isThere.close();
+												system("cls");
+												columnCenter();
+												lineCenter("ERROR");
+												cout << endl << endl;
+												lineCenter( "The file you specified does not exist");
+												Sleep(1500);
+												system("cls");
+
+												columnCenter();
+												lineCenter("BOARD FILE");
+												cout << endl << endl;
+												lineCenter(" ");
+												cin >> boardFileName;
+
+												isThere.open("board_files/" + boardFileName);
+											}
+											isThere.close();
+
+											Player P2(p2Name,boardFileName);
+
+											system("cls");
+											columnCenter();
+											lineCenter("GAME ON!");
+											Sleep(1500);
+											system("cls");
+											
+											//decide quem será o primeiro a jogar
+											firstToPlay(P1,P2);
+											Sleep(1500);
+											system("cls");
+
+											//inicia o jogo tendo em conta a ordem dos players (gravada em index)
+											if(P1.getIndex() == 1)
+												game(P1,P2);
+											else
+												game(P2,P1);
+
+
+                                        } break;
+
+                                        case 1:
+                                        {
+                                                cout << "\n\n\nThis is the options...";
+                                                Sleep(1000);
+                                        } break;
+                                        case 2:
+                                        {
+                                                return 0;
+                                        } break;
+                                }
+                                break;
+                        }
+                }
+               
+                Sleep(150);
+        }
+       
+        return 0;
 }
 
 
@@ -305,42 +508,10 @@ void Game(Player &P1,Player &P2)
 
 int main()
 {
-	
-	string p1Name,p2Name,boardFileName;
-
-	cout << "PLAYER 1" << endl;
-	cout << "Name: ";
-	//cin >> p1Name;
-	cout << "Board configuration file name: ";
-	//cin >> boardFileName;
-	//Player P1(p1Name,boardFileName);
-	Player P1("simao","conf.tab");
-
-	cout << "PLAYER 2" << endl;
-	cout << "Name: ";
-	//cin >> p2Name;
-	cout << "Board configuration file name: ";
-	//cin >> boardFileName;
-	//Player P2(p2Name,boardFileName);
-	Player P2("reis","conf.tab");
-	firstToPlay(P1,P2);
-	if(P1.getIndex() == 1)
-		Game(P1,P2);
-	else
-		Game(P2,P1);
-
-
-
-
 
 	
-
-
-	cout << endl;
-
-
-	system("pause");
-
+menu();
+	
 
 	return 0;
 }
