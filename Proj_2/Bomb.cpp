@@ -3,9 +3,9 @@
 
 
 
-Bomb::Bomb(Position<char> targetPosition)
+Bomb::Bomb(Position<char> targetPosition,int numLines, int numColumns)
 {
-	targetPos_char = randomizePosition(targetPosition);
+	targetPos_char = randomizePosition(targetPosition, numLines , numColumns);
 	targetColumn = targetPos_char.col;
 	targetLine = targetPos_char.lin;
 }
@@ -52,20 +52,31 @@ Position<char> Bomb::convertPositionInttoChar(Position<int> position)
 }
 
 
-Position<char> Bomb::randomizePosition(Position<char> position)
+Position<char> Bomb::randomizePosition(Position<char> position, int numLines , int numColumns)
 {
-	Position<int>  original,north,south,east,west;
-	original = convertPositionChartoInt(position);
-	north = original;
-	south = original;
-	east = original;
-	west = original;
+	Position<char> north,south,east,west;
+	north = position;
+	south = position;
+	east = position;
+	west = position;
 
-	north.lin = original.lin + 1;
-	south.lin = original.lin - 1;
+	if(position.lin != 'A')
+		north.lin = position.lin - 1;
 
-	east.col = original.col + 1;
-	west.col = original.col - 1;
+	south.lin = position.lin + 1;
+
+	east.col = position.col + 1;
+
+	if(position.col != 'a')
+		west.col = position.col - 1;
+
+
+	if((int)south.lin > (numLines + 64) )
+		south = position;
+
+	if((int)east.col > (numColumns + 96) )
+		east = position;
+
 
 	srand (time(NULL));
 	int randomNumber;
@@ -74,19 +85,19 @@ Position<char> Bomb::randomizePosition(Position<char> position)
 	switch(randomNumber)
 	{
 		case 1:
-			return convertPositionInttoChar(original);
+			return position;
 			break;
 		case 2:
-			return convertPositionInttoChar(north);
+			return north;
 			break;
 		case 3:
-			return convertPositionInttoChar(south);
+			return south;
 			break;
 		case 4:
-			return convertPositionInttoChar(east);
+			return east;
 			break;
 		case 5:
-			return convertPositionInttoChar(west);
+			return west;
 			break;
 	}
 

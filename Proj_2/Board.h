@@ -2,6 +2,10 @@
 #include "Ship.h"
 #include <vector>
 
+struct shipsOnBoard
+{
+	int type, index;
+};
 
 class Board
 {
@@ -18,9 +22,10 @@ class Board
 		int getShipArea();
 		int getMaxLine();
 		int getMaxColumn();
+		void changeStatus(int shipPos,string newStatus);
 		friend ostream& operator<< (ostream &out, Board &toDisplay);
 	private:
 		int numLines, numColumns; 
 		vector<Ship> ships; 
-		vector<vector<int>> board;
+		vector<vector<shipsOnBoard>> board;
 };

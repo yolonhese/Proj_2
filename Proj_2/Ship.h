@@ -20,7 +20,7 @@ class Ship
 
 		void show() const; // shows the attributes of the ship (for debugging)
 		
-		void giveStatus(string newStatus);
+		string giveStatus(string newStatus);
 
 		//fuções get...()
 		Position<char> getPosition() const;
@@ -28,7 +28,7 @@ class Ship
 		unsigned int getSize() const;
 		char getSymbol() const;
 		unsigned int getColor() const;
-		string getStatus() const;
+		string getStatus();
 
 	private:
 		char symbol; // 'P' = "porta-aviões"; 'F' = "fragata"; … (portuguese names)

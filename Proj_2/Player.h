@@ -7,7 +7,6 @@ class Player
 		Player();
 		Player(string playerName, string boardFilename);
 		void showBoard() const; 
-		Bomb getBomb(Position<char> bombTarget) const; 
 		void attackBoard(const Bomb &b);
 		void giveIndex(int number); // Apenas para definir quem é o primeiro a jogar
 		bool isDefeated();
@@ -18,6 +17,7 @@ class Player
 		void giveScore(float number);
 		float getScore();
 		int getIndex();
+
 		friend ostream& operator<< (ostream &out, Player manoel);
 	private:
 		string name; 

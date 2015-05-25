@@ -18,11 +18,6 @@ void Player::showBoard() const
 	cout << toDisplay;
 }
 
-Bomb Player::getBomb(Position<char> bombTarget) const
-{
-	Bomb createdBomb(bombTarget);
-	return createdBomb;
-}
 
 void Player::attackBoard(const Bomb &b)
 {

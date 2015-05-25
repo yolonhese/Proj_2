@@ -152,20 +152,22 @@ float playing(Player &a, Player &b)
 		*/
 		bombCoordinates.lin = typedCoordinates.c_str()[0];
 		bombCoordinates.col = typedCoordinates.c_str()[1];
-		if((b.getBoard().getMaxLine() < int(bombCoordinates.lin) - 64) && (b.getBoard().getMaxColumn() < int(toupper(bombCoordinates.col)) - 64))
+
+		if((b.getBoard().getMaxLine() < int(bombCoordinates.lin) - 65) || (b.getBoard().getMaxColumn() < int(toupper(bombCoordinates.col)) - 65))
 		{
 			valid = 0;
 			system("cls");
 			cout << "Please enter valid coordiates" << endl;
-			Sleep(100);
+			Sleep(1000);
 			system("cls");
 		}
 		
 	}while (!valid);
+
 	float end = (clock() - begin ) / (float) CLOCKS_PER_SEC; //guarda na variavel end o tempo decorrido até ao fim da jogada
 
 
-	Bomb theBomb(bombCoordinates);
+	Bomb theBomb(bombCoordinates, b.getBoard().getMaxLine(),b.getBoard().getMaxColumn());
 	cout << "The bomb will be dropped in the position ";
 	cout << theBomb.getTargetPosition().lin;
 	cout << theBomb.getTargetPosition().col << endl;
@@ -290,6 +292,8 @@ void Game(Player &P1,Player &P2)
 	float score;
 	score = winnerMoves * winner.getShipArea() / winner.getBoardSize();
 
+	cout << looser.getBoard() << endl;
+
 	cout << "The winner is " << winner.getName() << endl << " with " << score << " points!";
 
 	winner.giveScore(score);
@@ -301,7 +305,7 @@ void Game(Player &P1,Player &P2)
 
 int main()
 {
-
+	
 	string p1Name,p2Name,boardFileName;
 
 	cout << "PLAYER 1" << endl;
@@ -325,11 +329,17 @@ int main()
 	else
 		Game(P2,P1);
 
-	 
+
+
+
+
+	
+
+
+	cout << endl;
+
 
 	system("pause");
-
-
 
 
 	return 0;

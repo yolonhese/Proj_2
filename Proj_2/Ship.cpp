@@ -9,7 +9,7 @@ Ship::Ship(char symbol, Position<char> position, char orientation, unsigned int 
 	this->orientation = orientation;
 	this->size = size;
 	this->color = color;
-	string stat(size,toupper(symbol));
+	string stat(size,symbol);
 	status = stat;
 }
 
@@ -189,12 +189,12 @@ bool Ship::isDestroyed() const
 
 	while(i < size)
 	{
-		if(islower(status[i]))
+		if(islower(status.c_str()[i]))
 			lower++;
 		i++;
 	}
 
-	float half = size/2;
+	float half = size/2.0;
 
 	if(lower >= half)
 		return true;
@@ -204,12 +204,13 @@ bool Ship::isDestroyed() const
 
 }
 
-void Ship::giveStatus(string newStatus)
+string Ship::giveStatus(string newStatus)
 {
 	status = newStatus;
+	return status;
 }
 
-string Ship::getStatus() const
+string Ship::getStatus() 
 {
 	return status;
 }

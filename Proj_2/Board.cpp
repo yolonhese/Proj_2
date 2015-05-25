@@ -96,7 +96,8 @@ void Board::fillBoard()
 	{
 		for(unsigned int ii = 0; ii < board[i].size(); ii++)
 		{
-			board[i][ii] = -1;
+			board[i][ii].type = -1;
+			board[i][ii].index = 0;
 		}
 
 	}
@@ -111,12 +112,15 @@ void Board::fillBoard()
 		if(ships[i].getOrientation() == 'H')
 			for(unsigned int z = 0; z < ships[i].getSize(); z++)
 			{
-				board[shipPostion.lin - 1][shipPostion.col + z - 1] = i;
+				board[shipPostion.lin - 1][shipPostion.col + z - 1].type = i;
+				board[shipPostion.lin - 1][shipPostion.col + z - 1].index = z;
 			}
 		if(ships[i].getOrientation() == 'V')
 			for(unsigned int w = 0; w < ships[i].getSize(); w++)
 			{
-				board[shipPostion.lin + w - 1][shipPostion.col - 1] = i;
+				board[shipPostion.lin + w - 1][shipPostion.col - 1].type = i;
+				board[shipPostion.lin + w - 1][shipPostion.col - 1].index = w;
+
 			}
 	}
 }
@@ -125,28 +129,34 @@ bool Board::putShip(const Ship &s)
 {
 	Position<char> shipPositionChar = s.getPosition();
 	Position<int> shipPostion;
-		shipPostion.lin = int(shipPositionChar.lin) - 64;
-		shipPostion.col = int(toupper(shipPositionChar.col)) -64;
+		shipPostion.lin = int(shipPositionChar.lin) - 65;
+		shipPostion.col = int(toupper(shipPositionChar.col)) -65;
 
 		if(shipPostion.lin > numLines || shipPostion.col > numColumns)
 			return 0;
 
 		if(s.getOrientation() == 'H')
-			if(shipPostion.col + s.getSize() - 1 > numColumns)
+		{
+			if(shipPostion.col + s.getSize()  > numColumns)
 				return 0;
 			for(unsigned int z = 0; z < s.getSize(); z++)
 			{
-				if(board[shipPostion.lin][shipPostion.col + z] != -1)
+				if(board[shipPostion.lin][shipPostion.col + z].type != -1)
 					return 0;
 			}
+		}
+
 		if(s.getOrientation() == 'V')
-			if(shipPostion.lin + s.getSize() - 1 > numLines)
+		{
+			if(shipPostion.lin + s.getSize()  > numLines)
 				return 0;
+
 			for(unsigned int z = 0; z < s.getSize(); z++)
 			{
-				if(board[shipPostion.lin + z][shipPostion.col] != -1)
+				if(board[shipPostion.lin + z][shipPostion.col].type != -1)
 					return 0;
 			}
+		}
 
 			/*		Caso o navio "s" não esteja numa posição inválida (fora dos limites do tabuleiro ou
 			sobreposto em relação a outro navio já colocado) adiciona-se o mesmo ao vetor "ships"
@@ -178,6 +188,11 @@ void Board::moveShips()
 				break;
 			z--;
 		} while (z >= 0);
+		if(z == -1)
+		{
+			ships.push_back(backupShip);
+			fillBoard();
+		}
 
 	}
 }
@@ -185,18 +200,20 @@ void Board::moveShips()
 bool Board::attack(const Bomb &b)
 {
 	Position<int> impactPos,shipPos;
-	impactPos.lin = int(b.getTargetPosition().lin) - 64;
-	impactPos.col = int(toupper(b.getTargetPosition().col)) -64;
+	int temporary;
+
+	impactPos.lin =	int(b.getTargetPosition().lin) - 65;
+	impactPos.col =	int(b.getTargetPosition().col) - 97;
 
 	int partNumber,shipIndex;
-	shipIndex = board[impactPos.lin][impactPos.col];
+	shipIndex = board[impactPos.lin][impactPos.col].type;
 	
 
-	if(board[impactPos.lin][impactPos.col] == -1)
+	if(board[impactPos.lin][impactPos.col].type == -1)
 		return 0;
 
-	shipPos.lin = int(ships[shipIndex].getPosition().lin) - 64;
-	shipPos.col = int(toupper(ships[shipIndex].getPosition().col)) -64;
+	shipPos.lin = int(ships[shipIndex].getPosition().lin) - 65;
+	shipPos.col = int(ships[shipIndex].getPosition().col) - 97;
 
 
 
@@ -241,7 +258,7 @@ void Board::display() const
 
 		for (int ii = 0; ii < numColumns; ii++)
 		{
-			if(board[i][ii] == -1)
+			if(board[i][ii].type == -1)
 			{
 				setColor(BLUE,LIGHTGRAY);
 				cout << setw(2);
@@ -249,9 +266,21 @@ void Board::display() const
 			}
 			else
 			{
-				setColor(ships[board[i][ii]].getColor(), LIGHTGRAY);
+				Ship shipToPrint = ships[board[i][ii].type] ;
+				string status;
+				char loweredSymbol;
+				setColor(shipToPrint.getColor(), LIGHTGRAY);
+				status = shipToPrint.getStatus();
 				cout << setw(2);
-				cout << ships[board[i][ii]].getSymbol();
+				if(islower( status.c_str()[board[i][ii].index] ) )
+				{
+					loweredSymbol = tolower( ships[board[i][ii].type].getSymbol() ) ;
+					cout << loweredSymbol;
+				}
+
+					
+				else
+					cout << ships[board[i][ii].type].getSymbol() ;
 			}
 
 		}
@@ -299,13 +328,20 @@ int Board::getShipArea()
 
 int Board::getMaxLine()
 {
-	return numLines;
+	return numLines - 1;
 }
 
 int Board::getMaxColumn()
 {
-	return numColumns;
+	return numColumns - 1;
 }
+
+void Board::changeStatus(int shipPos, string newStatus)
+{
+	ships[shipPos].giveStatus(newStatus);
+
+}
+
 
 
 
