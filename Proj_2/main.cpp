@@ -1,6 +1,7 @@
 #include <iostream>
 #include <time.h>
 #include <windows.h>
+#include <iomanip>
 #include "Player.h"
 
 
@@ -27,16 +28,6 @@ void lineCenter(string s)
  
 	cout<<s;
 }
-
-
-
-
-struct topScore
-			{
-				float score;
-				string name;
-				int boardSize,shipArea;
-			};
 
 
 /*
@@ -83,13 +74,13 @@ float playing(Player &a, Player &b)
 	//neste cenário, "a" está a atacar "b"
 	float begin = clock(); //regista o início da jogada
 	Position<char> bombCoordinates;
-	bool valid = 1;
+	bool valid;
 
 
 	system("cls");
 	columnCenter();
 	lineCenter("GET READY");
-	cout << endl;
+	cout << endl << endl;
 	lineCenter(a.getName());
 	Sleep(1500);
 	do
@@ -98,8 +89,9 @@ float playing(Player &a, Player &b)
 		char maxCol = b.getBoard().getMaxColumn() + 97;
 		system("cls");
 		cout << endl << endl;
-		cout << b.getName() << "'S BOARD" << endl;
-		
+		lineCenter( b.getName() + "'S BOARD");
+		cout << endl;
+		cout << b << endl << endl;
 		cout << "COORDINATES [A - ";
 		cout << maxLin;
 		cout << "][a - ";
@@ -114,6 +106,8 @@ float playing(Player &a, Player &b)
 		*/
 		bombCoordinates.lin = typedCoordinates.c_str()[0];
 		bombCoordinates.col = typedCoordinates.c_str()[1];
+
+		valid = 1;
 
 		if((b.getBoard().getMaxLine() < int(bombCoordinates.lin) - 65) || (b.getBoard().getMaxColumn() < int(toupper(bombCoordinates.col)) - 65) || (bombCoordinates.lin < 65) || (bombCoordinates.lin > 90) || (bombCoordinates.col < 97) || (bombCoordinates.col > 122) ) 
 		{
@@ -147,7 +141,27 @@ float playing(Player &a, Player &b)
 
 }
 
-
+/*
+Esta função compara o score do jogador "someone" com o top 10 scores
+localizado no ficheiro "topTen.log" e, caso o seu score seja inferior (menor = melhor)
+a algum deles, adiciona-o à lista e retira o último classificado para que se mantenham
+apenas 10. Caso o ficheiro não exista, é criado e o jogador é automaticamente adicionado.
+Para realizar a comparação, o ficheiro é lido, linha a linha para um vector do tipo
+"topScore" (struct criada para o efeito que grava as informações necessárias ao top de 
+jogadores), "highScores", compara com todos os elementos um a um e, caso o score seja melhor do que algum
+insere-o no vector na posição correta (entre um menor e um maior). Caso o vector não contenha nenhum valor
+superior ao de "someone" (agora já na forma de "someoneScore")  é feita a adição do mesmo ao vector. Para 
+garantirmos que no ficheiro ficam apenas os dez melhores, caso "highScores" tenha um comprimento superior
+a 10 é feito o "resize" e os elementos em excesso são descartados. Por fim, abrimos o ficheiro (esvaziando-o com
+a opção ofStream::trunc) e os valores de "highScores" são copiados um por cada linha para que possam ser posteriormente
+acedidos.
+*/
+struct topScore
+			{
+				float score;
+				string name;
+				int boardSize,shipArea;
+			};
 void addToTop(Player someone)
 {
 	ifstream log("topTen.log");
@@ -163,7 +177,6 @@ void addToTop(Player someone)
 		log << someone.getBoardSize();
 		log << " ";
 		log << someone.getShipArea();
-		log << endl;
 
 		log.close();
 	}
@@ -205,17 +218,24 @@ void addToTop(Player someone)
 				highScores.insert(highScores.begin()+i,someoneScore);
 				break;
 			}
+			else
+				if(i == highScores.size() - 1)
+				{
+					highScores.push_back(someoneScore);
+					break;
+				}
 		}
 
 		while (highScores.size() > 10)
 		{
-			highScores.pop_back();
+			highScores.resize(10);
 		}
 
 		ofstream freshLog("topTen.log" , ofstream::trunc);
 
 		for(int i = 0; i < highScores.size() ; i++)
 		{
+			freshLog << endl;
 			freshLog << highScores[i].score;
 			freshLog << " ";
 			freshLog << highScores[i].name;
@@ -223,7 +243,7 @@ void addToTop(Player someone)
 			freshLog << highScores[i].boardSize;
 			freshLog << " ";
 			freshLog << highScores[i].shipArea;
-			freshLog << endl;
+			
 		}
 
 		freshLog.close();
@@ -291,9 +311,17 @@ void game(Player &P1,Player &P2)
 	addToTop(winner);
 }
 
+/*
+ É uma espécie de função central. Tal como o nome indica apresenta ao utilizador
+ um menu. Exitem 3 opções: NEW GAME, TOP10 e EXIT. A última termina o programa, TOP10
+ apresenta na consola o conteúdo de "topTen.log", caso exista. E NEW GAME inicia um novo
+ jogo recebemndo os dados de cada um dos jogadores. Verifica a existência do ficheiro de 
+ tabuleiro indicado e a duplicação dos nomes dos jogadores. Quando o jogo termina, regressa
+ ao menu.
+*/
 int menu()
 {
-        string Menu[4] = {"Start Game", "Create Board", "TOP10", "Exit"};
+        string Menu[3] = {"NEW GAME", "TOP10", "EXIT"};
         int pointer = 0;
        
         while(true)
@@ -301,22 +329,21 @@ int menu()
                 system("cls");
                
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
-                lineCenter("Menu");
-                cout<<endl<<endl;
+				columnCenter();
                
-                for (int i = 0; i < 4; ++i) //Trocar a cor para opcao selecionada
+                for (int i = 0; i < 3; ++i) //Trocar a cor para opcao selecionada
                 {
                         if (i == pointer)
                         {
-                                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
+                                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
                                 lineCenter(Menu[i]);
-                                        cout << endl;
+                                        cout << endl << endl;
                         }
                         else
                         {
                                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
                                 lineCenter(Menu[i]);
-                                        cout << endl;
+                                        cout << endl << endl;
                         }
                 }
                
@@ -334,7 +361,7 @@ int menu()
                         else if (GetAsyncKeyState(VK_DOWN) != 0)
                         {
                                 pointer += 1;
-                                if (pointer == 4)
+                                if (pointer == 3)
                                 {
                                         pointer = 0;
                                 }
@@ -345,148 +372,204 @@ int menu()
                                 switch (pointer)
                                 {
                                         case 0:
-                                        {
-											//Este trecho corre quando selecionada a entrada "Start Game"
-											string p1Name,p2Name,boardFileName;
-
-											//Criação de P1
-											system("cls");
-											columnCenter();
-											lineCenter("P1");
-											Sleep(1500);
-
-											system("cls");
-											columnCenter();
-											lineCenter("NAME");
-											lineCenter(" ");
-											cin >> p1Name;
-
-											system("cls");
-											columnCenter();
-											lineCenter("BOARD FILE");
-											cout << endl << endl;
-											lineCenter(" ");
-											cin >> boardFileName;
-
-											/*As linhas seguintes verificam a existência do ficheiro escolhido pelo jogador.
-											Caso não exista, é apresentada uma mensagem de erro e é requesitada um novo nome de
-											ficheiro. Isto repete-se até que o nome do ficheiro introduzido seja validado.
-											*/
-											ifstream isThere;
-											isThere.open("board_files/" + boardFileName);
-											while(!isThere.good())
 											{
-												isThere.close();
-												system("cls");
-												columnCenter();
-												lineCenter("ERROR");
-												cout << endl << endl;
-												lineCenter( "The file you specified does not exist");
-												Sleep(1500);
-												system("cls");
+												//houve necessidade de limpar o buffer. estava a causar problemas nesta opção do menu
+												cin.clear();
+												cin.ignore(1);
+												
+												//Este trecho corre quando selecionada a entrada "Start Game"
+												string p1Name,p2Name,boardFileName;
 
+												//Criação de P1
+												system("cls");
 												columnCenter();
-												lineCenter("BOARD FILE");
-												cout << endl << endl;
-												lineCenter(" ");
+												lineCenter("P1");
+												Sleep(1500);
+
+												system("cls");
+												columnCenter();
+												cout << "NAME";
+												cout << endl;
+												cin >> p1Name;
+
+												system("cls");
+												columnCenter();
+												cout << "BOARD FILE";
+												cout << endl;
 												cin >> boardFileName;
 
+												/*As linhas seguintes verificam a existência do ficheiro escolhido pelo jogador.
+												Caso não exista, é apresentada uma mensagem de erro e é requesitada um novo nome de
+												ficheiro. Isto repete-se até que o nome do ficheiro introduzido seja validado.
+												*/
+												ifstream isThere;
 												isThere.open("board_files/" + boardFileName);
-											}
-											isThere.close();
+												while(!isThere.good())
+												{
+													isThere.close();
+													system("cls");
+													columnCenter();
+													lineCenter("ERROR");
+													cout << endl << endl;
+													lineCenter( "The file you specified does not exist");
+													Sleep(1500);
+													system("cls");
 
-											Player P1(p1Name,boardFileName);
+													columnCenter();
+													cout << "BOARD FILE";
+													cout << endl;
+													cin >> boardFileName;
 
-											//Criação de P2
-											system("cls");
-											columnCenter();
-											lineCenter("P2");
-											Sleep(1500);
+													isThere.open("board_files/" + boardFileName);
+												}
+												isThere.close();
 
-											system("cls");
-											columnCenter();
-											lineCenter("NAME");
-											lineCenter(" ");
-											cin >> p2Name;
-											/*
-											Verifica se o nome escolhido por P2 é igual ao de P1.
-											Caso seja apresenta uma mensagem de erro até que seja
-											introduzido um nome diferente.
-											*/
-											while (p2Name == p1Name)
-											{
+												Player P1(p1Name,boardFileName);
+
+												//Criação de P2
 												system("cls");
 												columnCenter();
-												lineCenter("ERROR");
-												cout << endl << endl;
-												lineCenter("You must choose a different name from your opponent");
+												lineCenter("P2");
 												Sleep(1500);
+
 												system("cls");
 												columnCenter();
-												lineCenter("NAME");
-												lineCenter(" ");
+												cout << "NAME";
+												cout << endl;
 												cin >> p2Name;
-											}
+												/*
+												Verifica se o nome escolhido por P2 é igual ao de P1.
+												Caso seja apresenta uma mensagem de erro até que seja
+												introduzido um nome diferente.
+												*/
+												while (p2Name == p1Name)
+												{
+													system("cls");
+													columnCenter();
+													lineCenter("ERROR");
+													cout << endl << endl;
+													lineCenter("You must choose a different name from your opponent");
+													Sleep(1500);
+													system("cls");
+													columnCenter();
+													cout << "NAME";
+													cout << endl;
+													cin >> p2Name;
+												}
 
-											system("cls");
-											columnCenter();
-											lineCenter("BOARD FILE");
-											cout << endl << endl;
-											lineCenter(" ");
-											cin >> boardFileName;
-
-											/*As linhas seguintes verificam a existência do ficheiro escolhido pelo jogador.
-											Caso não exista, é apresentada uma mensagem de erro e é requesitada um novo nome de
-											ficheiro. Isto repete-se até que o nome do ficheiro introduzido seja validado.								
-											*/
-											isThere.open("board_files/" + boardFileName);
-											while(!isThere.good())
-											{
-												isThere.close();
 												system("cls");
 												columnCenter();
-												lineCenter("ERROR");
-												cout << endl << endl;
-												lineCenter( "The file you specified does not exist");
+												cout << "BOARD FILE";
+												cout << endl;
+												cin >> boardFileName;
+
+												/*As linhas seguintes verificam a existência do ficheiro escolhido pelo jogador.
+												Caso não exista, é apresentada uma mensagem de erro e é requesitada um novo nome de
+												ficheiro. Isto repete-se até que o nome do ficheiro introduzido seja validado.								
+												*/
+												isThere.open("board_files/" + boardFileName);
+												while(!isThere.good())
+												{
+													isThere.close();
+													system("cls");
+													columnCenter();
+													lineCenter("ERROR");
+													cout << endl << endl;
+													lineCenter( "The file you specified does not exist");
+													Sleep(1500);
+													system("cls");
+
+													columnCenter();
+													cout << "BOARD FILE";
+													cout << endl;
+													cin >> boardFileName;
+
+													isThere.open("board_files/" + boardFileName);
+												}
+												isThere.close();
+
+												Player P2(p2Name,boardFileName);
+
+												system("cls");
+												columnCenter();
+												lineCenter("GAME ON!");
+												Sleep(1500);
+												system("cls");
+											
+												//decide quem será o primeiro a jogar
+												firstToPlay(P1,P2);
 												Sleep(1500);
 												system("cls");
 
-												columnCenter();
-												lineCenter("BOARD FILE");
-												cout << endl << endl;
-												lineCenter(" ");
-												cin >> boardFileName;
-
-												isThere.open("board_files/" + boardFileName);
-											}
-											isThere.close();
-
-											Player P2(p2Name,boardFileName);
-
-											system("cls");
-											columnCenter();
-											lineCenter("GAME ON!");
-											Sleep(1500);
-											system("cls");
-											
-											//decide quem será o primeiro a jogar
-											firstToPlay(P1,P2);
-											Sleep(1500);
-											system("cls");
-
-											//inicia o jogo tendo em conta a ordem dos players (gravada em index)
-											if(P1.getIndex() == 1)
-												game(P1,P2);
-											else
-												game(P2,P1);
+												//inicia o jogo tendo em conta a ordem dos players (gravada em index)
+												if(P1.getIndex() == 1)
+													game(P1,P2);
+												else
+													game(P2,P1);
 
 
                                         } break;
 
                                         case 1:
                                         {
-                                                cout << "\n\n\nThis is the options...";
-                                                Sleep(1000);
+											ifstream log("topTen.log");
+											//Caso o ficheiro "topTen.log" nao exista, apresenta uma mensagem de erro
+											if(!log.good())
+											{
+												system("cls");
+												columnCenter();
+												lineCenter("ERROR");
+												cout << endl << endl;
+												lineCenter( "There are no recorded scores");
+												Sleep(1500);
+												system("cls");
+
+												log.close();
+											}
+											else
+											{
+												vector<topScore> highScores;
+												while(!log.eof())
+												{
+													string score_str,name,boardSize_str,shipArea_str;
+													getline(log, score_str , ' ');
+													getline(log, name , ' ');
+													getline(log, boardSize_str , ' ');
+													getline(log, shipArea_str);
+
+													float score;
+													int boardSize,shipArea;
+													score = atof(score_str.c_str());
+													boardSize = atoi(boardSize_str.c_str());
+													shipArea = atoi(shipArea_str.c_str());
+
+													topScore defaultTop;
+													defaultTop.score = score;
+													defaultTop.name = name;
+													defaultTop.boardSize = boardSize;
+													defaultTop.shipArea = shipArea;
+
+													highScores.push_back(defaultTop);
+												}
+												log.close();
+
+												//Imprime na consola todos os scores registados no ficheiro .log
+												system("cls");
+												cout << left << setw(8) << "SCORE" << " | " << setw(15) << "NAME" << " | " << setw(4) << "BRD DIMENSION" << " | " << setw(4) <<  "OCPD AREA" << endl; 
+												for(int i = 0; i < 10; i++)
+												{
+													if(i < highScores.size())
+														cout << left << setw(8) << highScores[i].score << " | " << setw(15) << highScores[i].name << " | " << setw(13) << highScores[i].boardSize << " | " << setw(9) <<  highScores[i].shipArea << endl;
+													else
+														cout << left << setw(8) << "(EMPTY)" << " | " << setw(15) << "(EMPTY)" << " | " << setw(4) << "(EMPTY)" << " | " << setw(4) <<  "(EMPTY)" << endl; 
+
+												}
+
+												Sleep(5000);
+
+											}
+										     
+                                         
                                         } break;
                                         case 2:
                                         {
@@ -510,7 +593,7 @@ int main()
 {
 
 	
-menu();
+	menu();
 	
 
 	return 0;

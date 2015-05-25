@@ -3,20 +3,23 @@
 #include <iomanip>
 #include <windows.h>
 
-
-void columnCenter()
+/*
+Semelhantes às duas primeiras funções definidas no main.cpp
+Têm como função auxiliar na impressão do tabuleiro. A sua finalidade é apenas
+estética.
+*/
+void columnCenterBoard()
 {
-	for(int  i = 0; i < 10;i++)
+	for(int  i = 0; i < 4;i++)
 		cout << endl;
 }
-void lineCenter(string s)
+void lineCenterBoard(int colMax)
 {
-	int l=s.size();
-	int pos=(int)((80-l)/2);
+	
+	int pos=(int)((80 - colMax)/2);
 	for(int i=0;i<pos;i++)
 	cout<<" ";
  
-	cout<<s;
 }
 
 Board::Board()
@@ -245,11 +248,15 @@ bool Board::attack(const Bomb &b)
 
 void Board::display() const
 {
+	columnCenterBoard();
+
 	cout << setw(2);
 	cout << ' ';
 	
+	//lineCenterBoard(numLines);
 	setColor(YELLOW, BLUE);
 	char letter = 97;
+
 
 	for (int i = 0; i < numColumns; i++)
 	{
@@ -266,7 +273,7 @@ void Board::display() const
 
 	for (int i = 0; i < numLines; i++)
 	{
-		
+		//lineCenterBoard(numLines);
 		setColor(YELLOW, BLUE);
 		cout << setw(2);
 		cout << letter;
