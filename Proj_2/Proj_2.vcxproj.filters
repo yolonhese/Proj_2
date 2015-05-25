@@ -46,10 +46,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="conf.tab">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="topTen.top">
+    <None Include="conf_files\conf.tab">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

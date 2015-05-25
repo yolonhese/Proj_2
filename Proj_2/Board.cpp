@@ -3,6 +3,25 @@
 #include <iomanip>
 #include <windows.h>
 
+/*
+Semelhantes às duas primeiras funções definidas no main.cpp
+Têm como função auxiliar na impressão do tabuleiro. A sua finalidade é apenas
+estética.
+*/
+void columnCenterBoard()
+{
+	for(int  i = 0; i < 4;i++)
+		cout << endl;
+}
+void lineCenterBoard(int colMax)
+{
+	
+	int pos=(int)((80 - colMax)/2);
+	for(int i=0;i<pos;i++)
+	cout<<" ";
+ 
+}
+
 Board::Board()
 {
 
@@ -11,9 +30,11 @@ Board::Board()
 
 Board::Board(const string &filename)
 {
-	ifstream ficheiroconfig;				// Abre o ficheiro com as configurações com o 
-	ficheiroconfig.open(filename);		// nome gravado em "nome_ficheiro"
-											// para leitura em "ficheiroconfig".
+	ifstream ficheiroconfig;							// Abre o ficheiro com as configurações com o 
+	ficheiroconfig.open("board_files/" + filename);		// nome gravado em "nome_ficheiro"
+														// para leitura em "ficheiroconfig".
+
+	
 
 	string descarta,linesStr,columnsStr;	
 	getline(ficheiroconfig, linesStr, ' '); 
@@ -23,7 +44,7 @@ Board::Board(const string &filename)
 
 	numLines = atoi(linesStr.c_str());	//".c_str()" passa uma string para um array de chars.
 	numColumns = atoi(columnsStr.c_str());	// A função "atoi" retorna um inteiro a partir de um array de chars
-	area = numColumns * numLines;
+
 
 
 	board.resize(numLines);				// Redimensiona os vectores que constituem a estrutura
@@ -46,7 +67,7 @@ Board::Board(const string &filename)
 		sizeInt = atoi(size.c_str());			// Mais uma vez, convertemos os números (que estão em formato
 		colorInt = atoi(color.c_str());			// "string") para o formato "inteiro"
 
-		PositionChar position;
+		Position<char> position;
 		position.lin = posChar.c_str()[0];
 		position.col = posChar.c_str()[1];
 
@@ -59,12 +80,6 @@ Board::Board(const string &filename)
 
 	fillBoard();
 
-}
-
-void Board::show()
-{
-	cout << "linhas: " << numLines << endl;
-	cout << "colunas: " << numColumns << endl;
 }
 
 
@@ -100,57 +115,67 @@ void Board::fillBoard()
 	{
 		for(unsigned int ii = 0; ii < board[i].size(); ii++)
 		{
-			board[i][ii] = -1;
+			board[i][ii].type = -1;
+			board[i][ii].index = 0;
 		}
 
 	}
 
 	for(unsigned int i = 0; i < ships.size(); i++)
 	{
-		PositionChar shipPositionChar = ships[i].getPosition();
-		PositionInt shipPostion;
+		Position<char> shipPositionChar = ships[i].getPosition();
+		Position<int> shipPostion;
 		shipPostion.lin = int(shipPositionChar.lin) - 64;
 		shipPostion.col = int(toupper(shipPositionChar.col)) -64; 
 
 		if(ships[i].getOrientation() == 'H')
 			for(unsigned int z = 0; z < ships[i].getSize(); z++)
 			{
-				board[shipPostion.lin - 1][shipPostion.col + z - 1] = i;
+				board[shipPostion.lin - 1][shipPostion.col + z - 1].type = i;
+				board[shipPostion.lin - 1][shipPostion.col + z - 1].index = z;
 			}
 		if(ships[i].getOrientation() == 'V')
 			for(unsigned int w = 0; w < ships[i].getSize(); w++)
 			{
-				board[shipPostion.lin + w - 1][shipPostion.col - 1] = i;
+				board[shipPostion.lin + w - 1][shipPostion.col - 1].type = i;
+				board[shipPostion.lin + w - 1][shipPostion.col - 1].index = w;
+
 			}
 	}
 }
 
 bool Board::putShip(const Ship &s)
 {
-	PositionChar shipPositionChar = s.getPosition();
-	PositionInt shipPostion;
-		shipPostion.lin = int(shipPositionChar.lin) - 64;
-		shipPostion.col = int(toupper(shipPositionChar.col)) -64;
+	Position<char> shipPositionChar = s.getPosition();
+	Position<int> shipPostion;
+		shipPostion.lin = int(shipPositionChar.lin) - 65;
+		shipPostion.col = int(toupper(shipPositionChar.col)) -65;
 
 		if(shipPostion.lin > numLines || shipPostion.col > numColumns)
 			return 0;
 
 		if(s.getOrientation() == 'H')
-			if(shipPostion.col + s.getSize() - 1 > numColumns)
+		{
+			if(shipPostion.col + s.getSize()  > numColumns)
 				return 0;
 			for(unsigned int z = 0; z < s.getSize(); z++)
 			{
-				if(board[shipPostion.lin][shipPostion.col + z] != -1)
+				if(board[shipPostion.lin][shipPostion.col + z].type != -1)
 					return 0;
 			}
+		}
+
 		if(s.getOrientation() == 'V')
-			if(shipPostion.lin + s.getSize() - 1 > numLines)
+		{
+			if(shipPostion.lin + s.getSize()  > numLines)
 				return 0;
+
 			for(unsigned int z = 0; z < s.getSize(); z++)
 			{
-				if(board[shipPostion.lin + z][shipPostion.col] != -1)
+				if(board[shipPostion.lin + z][shipPostion.col].type != -1)
 					return 0;
 			}
+		}
 
 			/*		Caso o navio "s" não esteja numa posição inválida (fora dos limites do tabuleiro ou
 			sobreposto em relação a outro navio já colocado) adiciona-se o mesmo ao vetor "ships"
@@ -182,25 +207,32 @@ void Board::moveShips()
 				break;
 			z--;
 		} while (z >= 0);
+		if(z == -1)
+		{
+			ships.push_back(backupShip);
+			fillBoard();
+		}
 
 	}
 }
 
 bool Board::attack(const Bomb &b)
 {
-	PositionInt impactPos,shipPos;
-	impactPos.lin = int(b.getTargetPosition().lin) - 64;
-	impactPos.col = int(toupper(b.getTargetPosition().col)) -64;
+	Position<int> impactPos,shipPos;
+	int temporary;
+
+	impactPos.lin =	int(b.getTargetPosition().lin) - 65;
+	impactPos.col =	int(b.getTargetPosition().col) - 97;
 
 	int partNumber,shipIndex;
-	shipIndex = board[impactPos.lin][impactPos.col];
-	shipPos.lin = int(ships[shipIndex].getPosition().lin) - 64;
-	shipPos.col = int(toupper(ships[shipIndex].getPosition().col)) -64;
-
+	shipIndex = board[impactPos.lin][impactPos.col].type;
 	
 
-	if(board[impactPos.lin][impactPos.col] == -1)
+	if(board[impactPos.lin][impactPos.col].type == -1)
 		return 0;
+
+	shipPos.lin = int(ships[shipIndex].getPosition().lin) - 65;
+	shipPos.col = int(ships[shipIndex].getPosition().col) - 97;
 
 
 
@@ -216,11 +248,15 @@ bool Board::attack(const Bomb &b)
 
 void Board::display() const
 {
+	columnCenterBoard();
+
 	cout << setw(2);
 	cout << ' ';
 	
+	//lineCenterBoard(numLines);
 	setColor(YELLOW, BLUE);
 	char letter = 97;
+
 
 	for (int i = 0; i < numColumns; i++)
 	{
@@ -237,7 +273,7 @@ void Board::display() const
 
 	for (int i = 0; i < numLines; i++)
 	{
-		
+		//lineCenterBoard(numLines);
 		setColor(YELLOW, BLUE);
 		cout << setw(2);
 		cout << letter;
@@ -245,7 +281,7 @@ void Board::display() const
 
 		for (int ii = 0; ii < numColumns; ii++)
 		{
-			if(board[i][ii] == -1)
+			if(board[i][ii].type == -1)
 			{
 				setColor(BLUE,LIGHTGRAY);
 				cout << setw(2);
@@ -253,9 +289,21 @@ void Board::display() const
 			}
 			else
 			{
-				setColor(ships[board[i][ii]].getColor(), LIGHTGRAY);
+				Ship shipToPrint = ships[board[i][ii].type] ;
+				string status;
+				char loweredSymbol;
+				setColor(shipToPrint.getColor(), LIGHTGRAY);
+				status = shipToPrint.getStatus();
 				cout << setw(2);
-				cout << ships[board[i][ii]].getSymbol();
+				if(islower( status.c_str()[board[i][ii].index] ) )
+				{
+					loweredSymbol = tolower( ships[board[i][ii].type].getSymbol() ) ;
+					cout << loweredSymbol;
+				}
+
+					
+				else
+					cout << ships[board[i][ii].type].getSymbol() ;
 			}
 
 		}
@@ -268,3 +316,69 @@ void Board::display() const
 
 
 }
+
+/*
+"getShips" retorna o vector de navios colocados no tabuleiro
+*/
+vector<Ship> Board::getShips()
+{
+	return ships;
+}
+
+/*
+Retorna a área do tabuleiro.
+*/
+int Board::getSize()
+{
+	return numLines * numColumns;
+}
+
+/*
+A função retorna a área total ocupada pelos navios no tabuleiro.
+Para chegar ao resultado total soma em "totalArea" o tamanho de todos os navios no vetor.
+*/
+int Board::getShipArea()
+{
+	int totalArea = 0;
+	for(int i = 0; i < ships.size(); i++)
+	{
+		totalArea = totalArea + ships[i].getSize();
+	}
+
+	return totalArea;
+
+}
+
+int Board::getMaxLine()
+{
+	return numLines - 1;
+}
+
+int Board::getMaxColumn()
+{
+	return numColumns - 1;
+}
+
+void Board::changeStatus(int shipPos, string newStatus)
+{
+	ships[shipPos].giveStatus(newStatus);
+
+}
+
+
+
+
+
+
+/*
+Aqui fazemos o overloading do operador "<<"
+Uma vez que a única função que imprime no ecrã é 
+a função "display", é tambem a úica a ser chamada. */
+ostream& operator<< (ostream &out, Board &toDisplay)
+{
+	toDisplay.display();
+	return out;
+
+}
+
+

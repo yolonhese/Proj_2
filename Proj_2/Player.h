@@ -6,14 +6,22 @@ class Player
 	public:
 		Player();
 		Player(string playerName, string boardFilename);
-		void showBoard() const; // shows the player’s board
-		Bomb getBomb(PositionChar bombTarget) const; // asks bomb target coordinates and creates the bomb
+		void showBoard() const; 
 		void attackBoard(const Bomb &b);
-		// "receives" a bomb from the opponent;
-	// updates own board taking into account the damages
-	// caused by the bomb; BEFORE THAT… moves the ships
+		void giveIndex(int number); // Apenas para definir quem é o primeiro a jogar
+		bool isDefeated();
 		string getName();
+		int getBoardSize();
+		Board getBoard();
+		int getShipArea();
+		void giveScore(float number);
+		float getScore();
+		int getIndex();
+
+		friend ostream& operator<< (ostream &out, Player manoel);
 	private:
-		string name; // name of the player
-		Board board; // board of the player
+		string name; 
+		Board board;
+		int index; //Indica se o é o primeiro o ou segundo a jogar (1 - primeiro, 2 - segundo)
+		float score; //Caso seja vencedor a pontuação ficará guardada nesta variável
 };

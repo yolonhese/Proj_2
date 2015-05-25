@@ -2,20 +2,20 @@
 #include <time.h>
 
 
-Ship::Ship(char symbol, PositionChar position, char orientation, unsigned int size, unsigned int color)
+Ship::Ship(char symbol, Position<char> position, char orientation, unsigned int size, unsigned int color)
 {
 	this->symbol = toupper(symbol);
 	posChar = position;
 	this->orientation = orientation;
 	this->size = size;
 	this->color = color;
-	string stat(size,toupper(symbol));
+	string stat(size,symbol);
 	status = stat;
 }
 
-PositionInt Ship::convertPositionChartoInt(PositionChar position)
+Position<int> Ship::convertPositionChartoInt(Position<char> position)
 {
-	PositionInt convertedPosition;
+	Position<int> convertedPosition;
 	char x,y;
 	int coordinate;
 
@@ -36,9 +36,9 @@ PositionInt Ship::convertPositionChartoInt(PositionChar position)
 	return convertedPosition;
 }
 
-PositionChar Ship::convertPositionInttoChar(PositionInt position)
+Position<char> Ship::convertPositionInttoChar(Position<int> position)
 {
-	PositionChar convertedPosition;
+	Position<char> convertedPosition;
 	char x,y;
 
 	x = position.col + 64;
@@ -53,7 +53,7 @@ PositionChar Ship::convertPositionInttoChar(PositionInt position)
 
 }
 
-PositionChar Ship::getPosition() const
+Position<char> Ship::getPosition() const
 {
 	return posChar;
 }
@@ -80,7 +80,7 @@ unsigned int Ship::getColor() const
 
 bool Ship::move(char direction, bool rotate, unsigned int lineMin, unsigned int columnMin, unsigned int lineMax, unsigned int columnMax)
 {
-	PositionChar backupPosition = posChar;
+	Position<char> backupPosition = posChar;
 	char backupOrientation = orientation;
 	switch(direction)
 	{
@@ -185,16 +185,16 @@ bool Ship::attack(size_t partNumber)
 
 bool Ship::isDestroyed() const
 {
-	int i = 0,lower;
+	int i = 0,lower = 0;
 
 	while(i < size)
 	{
-		if(islower(status[i]))
+		if(islower(status.c_str()[i]))
 			lower++;
 		i++;
 	}
 
-	float half = size/2;
+	float half = size/2.0;
 
 	if(lower >= half)
 		return true;
@@ -203,6 +203,18 @@ bool Ship::isDestroyed() const
 
 
 }
+
+string Ship::giveStatus(string newStatus)
+{
+	status = newStatus;
+	return status;
+}
+
+string Ship::getStatus() 
+{
+	return status;
+}
+
 
 void Ship::show() const
 {
