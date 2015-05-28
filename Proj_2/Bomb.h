@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 
+
 template <typename T>
 struct Position
 {
@@ -13,16 +14,18 @@ struct Position
 class Bomb
 {
 public:
-Bomb(Position<char> targetPosition, int numLines , int numColumns);
-Position<char> getTargetPosition() const;
-Position<int> convertPositionChartoInt(Position<char> position);
-Position<char> convertPositionInttoChar(Position<int> position);
-Position<char> randomizePosition(Position<char> position, int numLines , int numColumns);
+Bomb(Position<char> targetPosition, int numLines , int numColumns); //construtor
+
+Position<int> convertPositionChartoInt(Position<char> position);//auxiliar
+Position<char> convertPositionInttoChar(Position<int> position);//auxiliar
+
+Position<char> randomizePosition(Position<char> position, int numLines , int numColumns);//atribui à bomba uma posição random no raio de uma célula
+
+
+Position<char> getTargetPosition() const;//retorna targetPos_char
 
 
 
-
-void show() const; // shows the attributes of the bomb (for debugging)
 private:
 Position<char> targetPos_char;
 char targetLine, targetColumn;

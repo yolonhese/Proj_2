@@ -1,7 +1,12 @@
 #include "Ship.h"
 #include <time.h>
 
-
+/*
+	Construtor da classe Ship.
+	A única particularidade a apontar será a forma como se atribui
+	um valor a "status". É uma string que tem o mesmo comprimento do navio
+	e constituida pela repetição do símbolo do memso.
+*/
 Ship::Ship(char symbol, Position<char> position, char orientation, unsigned int size, unsigned int color)
 {
 	this->symbol = toupper(symbol);
@@ -13,6 +18,13 @@ Ship::Ship(char symbol, Position<char> position, char orientation, unsigned int 
 	status = stat;
 }
 
+
+
+/*
+	Esta função foi criada apenas para simplificar a leitura e debugging do código na função
+	"move". Recebe uma variável do tipo Position<char> e retorna a mesma convertida
+	em Position<int>
+*/
 Position<int> Ship::convertPositionChartoInt(Position<char> position)
 {
 	Position<int> convertedPosition;
@@ -36,47 +48,14 @@ Position<int> Ship::convertPositionChartoInt(Position<char> position)
 	return convertedPosition;
 }
 
-Position<char> Ship::convertPositionInttoChar(Position<int> position)
-{
-	Position<char> convertedPosition;
-	char x,y;
 
-	x = position.col + 64;
-	y = position.lin + 64;
-
-	convertedPosition.col = tolower(x);
-	convertedPosition.lin = y;
-
-	return convertedPosition;
-
-
-
-}
-
-Position<char> Ship::getPosition() const
-{
-	return posChar;
-}
-
-char Ship::getOrientation() const
-{
-	return orientation;
-}
-
-unsigned int Ship::getSize() const
-{
-	return size;
-}
-
-char Ship::getSymbol() const
-{
-	return symbol;
-}
-
-unsigned int Ship::getColor() const
-{
-	return color;
-}
+/*
+	A função "move" tal como o nome indica move (tenta mover) o navio na direção indicada
+	e/ou roda-lo, tendo em conta o valor de "rotate". É criada inicialmente uma "backupPosition" que
+	é alterada ao longo da função tendo em conta os argumentos. Caso esta não saia dos limites do tabuleiro
+	(tambem recebidos como argumentos) então altera-se a "positionChar" e a função retorna 1. Caso contrário,
+	"positionChar" não sofre qualquer tipo de alteração e a função retona 0.
+*/
 
 bool Ship::move(char direction, bool rotate, unsigned int lineMin, unsigned int columnMin, unsigned int lineMax, unsigned int columnMax)
 {
@@ -124,6 +103,11 @@ bool Ship::move(char direction, bool rotate, unsigned int lineMin, unsigned int 
 	return true;
 }
 
+
+/*
+	"moveRand" obtém aleatóriamente valores para os argumentos "direction" e "rotate" recebidos pela função "move".
+	Em seguida chama esta mesma função com os argumentos obtidos e retorna o seu valor.
+*/
 bool Ship::moveRand(unsigned int lineMin, unsigned int columnMin, unsigned int lineMax, unsigned int columnMax)
 {
 	
@@ -171,10 +155,19 @@ bool Ship::moveRand(unsigned int lineMin, unsigned int columnMin, unsigned int l
 
 }
 
+/*
+	Esta função recebe como argumento o número correspondente à peça do navio
+	que está a ser atacada. Caso esta esteja dentro dos limites da dimensão do mesmo,
+	acede-se à peça (uma das letras da string "status") e substitui-se por a mesma letra
+	mas minúscula com a função "tolower". Caso nao pertença a estes limites a função retorna
+	falso e "status" permanece inalterado.
+*/
 bool Ship::attack(size_t partNumber)
 {
 	if (partNumber >= 0 && partNumber <= size)
 	{
+		if(islower(status[partNumber-1]))
+			return false;
 		status[partNumber-1] = tolower(status[partNumber-1]);
 		return true;
 	}
@@ -183,6 +176,11 @@ bool Ship::attack(size_t partNumber)
 
 }
 
+/*
+	Verifica se metade ou acima de metade de "status" do navio
+	são letras minúsculas. Caso se verifique, a função retorna 
+	true significando que o mesmo foi destruido.
+*/
 bool Ship::isDestroyed() const
 {
 	int i = 0,lower = 0;
@@ -204,26 +202,39 @@ bool Ship::isDestroyed() const
 
 }
 
-string Ship::giveStatus(string newStatus)
+
+
+
+/*
+	Todas as funções que se seguem limitam-se a retornar valores
+	de variáveis privadas.
+*/
+Position<char> Ship::getPosition() const
 {
-	status = newStatus;
-	return status;
+	return posChar;
+}
+
+char Ship::getOrientation() const
+{
+	return orientation;
+}
+
+unsigned int Ship::getSize() const
+{
+	return size;
+}
+
+char Ship::getSymbol() const
+{
+	return symbol;
+}
+
+unsigned int Ship::getColor() const
+{
+	return color;
 }
 
 string Ship::getStatus() 
 {
 	return status;
-}
-
-
-void Ship::show() const
-{
-	cout <<"Simbolo: " <<symbol << endl;
-	cout << "Linha de Inicio: " << posChar.lin<< endl;
-	cout << "Coluna de Inicio: " << posChar.col << endl;
-	cout << "Orientacao: " << orientation << endl;
-	cout << "Tamanho: " << size << endl;
-	cout << "Codigo da cor: " << color << endl;
-	cout << "Estado do Navio: " << status << endl;
-	
 }

@@ -2,7 +2,9 @@
 #include <time.h>
 
 
-
+/*
+O construtor da bomba chama a função "randomizePosition" simulando assim o defeito que a própria poderia ou nao ter. 
+*/
 Bomb::Bomb(Position<char> targetPosition,int numLines, int numColumns)
 {
 	targetPos_char = randomizePosition(targetPosition, numLines , numColumns);
@@ -10,48 +12,15 @@ Bomb::Bomb(Position<char> targetPosition,int numLines, int numColumns)
 	targetLine = targetPos_char.lin;
 }
 
-Position<int> Bomb::convertPositionChartoInt(Position<char> position)
-{
-	Position<int> convertedPosition;
-	char x,y;
-	int coordinate;
-
-	x = position.col;
-	y = position.lin;
-
-	x = toupper(x);
-	coordinate = x;
-	coordinate = coordinate-64;
-
-	convertedPosition.col = coordinate;
-
-	coordinate = y;
-	coordinate = coordinate-64;
-
-	convertedPosition.lin = coordinate;
-
-	return convertedPosition;
-}
-
-
-Position<char> Bomb::convertPositionInttoChar(Position<int> position)
-{
-	Position<char> convertedPosition;
-	char x,y;
-
-	x = position.col + 64;
-	y = position.lin + 64;
-
-	convertedPosition.col = tolower(x);
-	convertedPosition.lin = y;
-
-	return convertedPosition;
-
-
-
-}
-
-
+/*
+	Esta função recebecomo argumentos a posição introduzida pelo jogador e os 
+	limites do tabuleiro do jogador adeversário. A bomba pode mover-se aleatóriamente
+	uma casa em relação à sua posição original, excepto se se encontrar nos limites do
+	tabuleiro. Nesses casos tem um número limitado de opções. Essa limitação é feita 
+	com as condições "if" em que, caso a movimentação da bomba em determinada direção
+	implique a sua saida dos limites do tabuleiro, essa mesma direção passará a corresponder
+	à posição original.
+*/
 Position<char> Bomb::randomizePosition(Position<char> position, int numLines , int numColumns)
 {
 	Position<char> north,south,east,west;
@@ -104,7 +73,9 @@ Position<char> Bomb::randomizePosition(Position<char> position, int numLines , i
 
 }
 
-
+/*
+	Retorna a posição final onde a bomba cai.
+*/
 Position<char> Bomb::getTargetPosition() const
 {
 	return targetPos_char;

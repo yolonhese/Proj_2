@@ -7,7 +7,7 @@ class Player
 		Player();
 		Player(string playerName, string boardFilename);
 		void showBoard() const; 
-		void attackBoard(const Bomb &b);
+		bool attackBoard(const Bomb &b);
 		void giveIndex(int number); // Apenas para definir quem é o primeiro a jogar
 		bool isDefeated();
 		string getName();

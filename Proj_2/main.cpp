@@ -2,17 +2,151 @@
 #include <time.h>
 #include <windows.h>
 #include <iomanip>
+#include <algorithm>
 #include "Player.h"
 
 
 
 using namespace std;
 
+struct shipTypeNumber
+	{
+		/*
+		Em vez de os classificar por simbolo, achamos que era melhor classificar por tamanho
+		(assim podemos ter os navios em várias línguas)
+		*/
+		int type; 
+		int number; //numero de navios desse tipo (com esse comprimento)
+
+		
+		
+	}defaultShip;
+
+/*
+	"cmpByType" vai permitir ordenar o vector por ordem
+	crescente de typo (tamanho do barco)
+*/
+bool compareByType(const shipTypeNumber &a, const shipTypeNumber &b)
+		{
+			return a.type < b.type;
+		}
+/*
+	Compara as dimesões e a quantidade de barcos dos dois jogadores.
+	Irá ser usada para validar a escolha do ficheiro de tabuleiro 
+	do jogador P2.
+*/
+bool sameShips(Player a,Player b)
+{
+	
+
+	
+
+	vector<shipTypeNumber> aShips,bShips;
+
+	/*
+		Colocamos em P1Ships todos os comprimentos de navios existentes no
+		board de P1
+	*/
+	for(int i = 0; i < a.getBoard().getShips().size() ; i++)
+	{
+		bool exists = 0;
+		for(int z = 0; z < aShips.size() ; z++)
+		{
+			if (a.getBoard().getShips()[i].getSize() == aShips[z].type)
+				exists = 1;
+		}
+		if(!exists)
+		{
+			defaultShip.type = a.getBoard().getShips()[i].getSize();
+			aShips.push_back(defaultShip);
+		}
+	}
+
+	/*
+		Associamos a cada comprimento o número de navios iguais existentes
+	*/
+	for(int i = 0; i < aShips.size() ; i++)
+	{
+		int howMany = 0;
+		for(int z = 0; z < a.getBoard().getShips().size() ; z++)
+		{
+			if (aShips[i].type == a.getBoard().getShips()[z].getSize())
+				howMany++;
+		}
+
+		aShips[i].number = howMany;
+	}
+
+
+
+
+	/*
+		Fazemos o mesmo para o de P2
+	*/
+	for(int i = 0; i < b.getBoard().getShips().size() ; i++)
+	{
+		bool exists = 0;
+		for(int z = 0; z < bShips.size() ; z++)
+		{
+			if (b.getBoard().getShips()[i].getSize() == bShips[z].type)
+				exists = 1;
+		}
+		if(!exists)
+		{
+			defaultShip.type = b.getBoard().getShips()[i].getSize();
+			bShips.push_back(defaultShip);
+		}
+	}
+
+	for(int i = 0; i < bShips.size() ; i++)
+	{
+		int howMany = 0;
+		for(int z = 0; z < b.getBoard().getShips().size() ; z++)
+		{
+			if (bShips[i].type == b.getBoard().getShips()[z].getSize())
+				howMany++;
+		}
+
+		bShips[i].number = howMany;
+	}
+
+	//Usamos "sort" em conjunto com "compareByType" para ordenar os vectores pelo tamanho do navio (ordem crescente)
+	sort(aShips.begin(),aShips.end(),compareByType);
+	sort(bShips.begin(),bShips.end(),compareByType);
+
+	/*
+		Depois de ordenados P1Ships e P2Ships, se ambos os jogadores
+		tiverem o mesmo número de barcos com as mesmas dimensões, então
+		os vectores serão equivalentes e a função retorna 1, caso contrário,
+		qualquer difereça nos vectores significa que um dos jogadores tem barcos
+		com dimensões diferentes do adversário ou em quantidades diferentes, a função
+		retorna 0.
+	*/
+	if(aShips.size() == bShips.size())
+	{
+	
+		for(int i = 0; i < aShips.size() ; i++)
+		{
+		
+			if( (aShips[i].type != bShips[i].type) || (aShips[i].number != bShips[i].number) )
+				return 0;
+
+		}
+
+		return 1;
+	}
+	else
+		return 0;
+
+
+}
+
 
 /*
 columnCenter e lineCenter foram criadas com um propósito meramente estético
 A primeira imprime linhas vazias até +/- o centro da consola e a segunda imprime a string "s" no
 centro da linha em que se encontra o cursor.
+lineCenterEmpty tem como objectivo centrar o cursor para a introdução de dados pelo utilizador.
 */
 void columnCenter()
 {
@@ -28,6 +162,15 @@ void lineCenter(string s)
  
 	cout<<s;
 }
+void lineCenterEmpty()
+{
+	
+	int pos=(int)((80-5)/2);
+	for(int i=0;i<pos - 3;i++)
+	cout<<" ";
+
+}
+
 
 
 /*
@@ -126,16 +269,23 @@ float playing(Player &a, Player &b)
 
 
 	Bomb theBomb(bombCoordinates, b.getBoard().getMaxLine(),b.getBoard().getMaxColumn());
+
+	bool hit = b.attackBoard(theBomb);
+
 	system("cls");
 	columnCenter();
 	lineCenter("BOMB FELLL IN");
 	cout << endl << endl;
 	lineCenter(" ");
 	cout << theBomb.getTargetPosition().lin;
-	cout << theBomb.getTargetPosition().col << endl;
+	cout << theBomb.getTargetPosition().col << endl << endl;
+	if(hit)
+		lineCenter("[HIT]");
+	else
+		lineCenter("[MISS]");
 	Sleep(1500);
 
-	b.attackBoard(theBomb);
+	
 
 	return end;
 
@@ -267,30 +417,33 @@ o top ten de scores do jogo com "addToTop".
 void game(Player &P1,Player &P2)
 {
 	float p1Moves = 0,p2Moves = 0,winnerMoves;
-	Player winner,looser;
+	Player winner,loser;
+	int p1ShipArea = P1.getShipArea(), p2ShipArea = P2.getShipArea(),loserShipArea;
 	while (true)
 	{
 		p1Moves = p1Moves + playing(P1,P2);
 		if(P2.isDefeated())
 		{
 			winner = P1;
-			looser = P2;
+			loser = P2;
 			winnerMoves = p1Moves;
+			loserShipArea = p2ShipArea;
 			break;
 		}
 		p2Moves = p2Moves + playing(P2,P1);
 		if(P1.isDefeated())
 		{
 			winner = P2;
-			looser = P1;
+			loser = P1;
 			winnerMoves = p2Moves;
+			loserShipArea = p1ShipArea;
 			break;
 		}
 	}
 
 	float score;
 	string score_str;
-	score = winnerMoves * winner.getShipArea() / winner.getBoardSize();
+	score = winnerMoves * loserShipArea / loser.getBoardSize();
 	score_str = to_string(score);
 
 	system("cls");
@@ -312,16 +465,15 @@ void game(Player &P1,Player &P2)
 }
 
 /*
- É uma espécie de função central. Tal como o nome indica apresenta ao utilizador
- um menu. Exitem 3 opções: NEW GAME, TOP10 e EXIT. A última termina o programa, TOP10
+ Exitem 3 opções: NEW GAME, TOP10 e EXIT. A última termina o programa, TOP10
  apresenta na consola o conteúdo de "topTen.log", caso exista. E NEW GAME inicia um novo
  jogo recebemndo os dados de cada um dos jogadores. Verifica a existência do ficheiro de 
- tabuleiro indicado e a duplicação dos nomes dos jogadores. Quando o jogo termina, regressa
- ao menu.
+ tabuleiro indicado e a duplicação dos nomes dos jogadores ou incompatibilidades entre os
+ tabuleiros escolhidos. Quando o jogo termina, regressa ao menu.
 */
-int menu()
+int main()
 {
-        string Menu[3] = {"NEW GAME", "TOP10", "EXIT"};
+        string Menu[4] = {"NEW GAME", "TOP10", "EXIT" , " "};
         int pointer = 0;
        
         while(true)
@@ -331,7 +483,7 @@ int menu()
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 				columnCenter();
                
-                for (int i = 0; i < 3; ++i) //Trocar a cor para opcao selecionada
+                for (int i = 0; i < 4; ++i) //Trocar a cor para opcao selecionada
                 {
                         if (i == pointer)
                         {
@@ -361,7 +513,7 @@ int menu()
                         else if (GetAsyncKeyState(VK_DOWN) != 0)
                         {
                                 pointer += 1;
-                                if (pointer == 3)
+                                if (pointer == 4)
                                 {
                                         pointer = 0;
                                 }
@@ -373,10 +525,16 @@ int menu()
                                 {
                                         case 0:
 											{
-												//houve necessidade de limpar o buffer. estava a causar problemas nesta opção do menu
-												cin.clear();
-												cin.ignore(1);
 												
+												//houve necessidade de limpar o buffer. estava a causar problemas nesta opção do menu
+												//cin.clear();
+												//cin.ignore(1);
+												int i = 0;
+												if( i != 0)
+												{
+												string test;
+												getchar();
+												}
 												//Este trecho corre quando selecionada a entrada "Start Game"
 												string p1Name,p2Name,boardFileName;
 
@@ -388,17 +546,20 @@ int menu()
 
 												system("cls");
 												columnCenter();
-												cout << "NAME";
-												cout << endl;
+												lineCenter("NAME");
+												cout << endl << endl;
+												lineCenterEmpty();
 												cin >> p1Name;
 
 												system("cls");
 												columnCenter();
-												cout << "BOARD FILE";
-												cout << endl;
+												lineCenter("BOARD FILE");
+												cout << endl << endl;
+												lineCenterEmpty();
 												cin >> boardFileName;
 
-												/*As linhas seguintes verificam a existência do ficheiro escolhido pelo jogador.
+												/*
+												As linhas seguintes verificam a existência do ficheiro escolhido pelo jogador.
 												Caso não exista, é apresentada uma mensagem de erro e é requesitada um novo nome de
 												ficheiro. Isto repete-se até que o nome do ficheiro introduzido seja validado.
 												*/
@@ -416,8 +577,9 @@ int menu()
 													system("cls");
 
 													columnCenter();
-													cout << "BOARD FILE";
-													cout << endl;
+													lineCenter("BOARD FILE");
+													cout << endl << endl;
+													lineCenterEmpty();
 													cin >> boardFileName;
 
 													isThere.open("board_files/" + boardFileName);
@@ -434,8 +596,9 @@ int menu()
 
 												system("cls");
 												columnCenter();
-												cout << "NAME";
-												cout << endl;
+												lineCenter("NAME");
+												cout << endl << endl;
+												lineCenterEmpty();
 												cin >> p2Name;
 												/*
 												Verifica se o nome escolhido por P2 é igual ao de P1.
@@ -452,15 +615,17 @@ int menu()
 													Sleep(1500);
 													system("cls");
 													columnCenter();
-													cout << "NAME";
-													cout << endl;
+													lineCenter("NAME");
+													cout << endl << endl;
+													lineCenterEmpty();
 													cin >> p2Name;
 												}
 
 												system("cls");
 												columnCenter();
-												cout << "BOARD FILE";
-												cout << endl;
+												lineCenter("BOARD FILE");
+												cout << endl << endl;
+												lineCenterEmpty();
 												cin >> boardFileName;
 
 												/*As linhas seguintes verificam a existência do ficheiro escolhido pelo jogador.
@@ -480,8 +645,9 @@ int menu()
 													system("cls");
 
 													columnCenter();
-													cout << "BOARD FILE";
-													cout << endl;
+													lineCenter("BOARD FILE");
+													cout << endl << endl;
+													lineCenterEmpty();
 													cin >> boardFileName;
 
 													isThere.open("board_files/" + boardFileName);
@@ -489,6 +655,56 @@ int menu()
 												isThere.close();
 
 												Player P2(p2Name,boardFileName);
+
+												/*
+													O ciclo while abaixo garante que P1 e P2 têm o mesmo tipo
+													de navios na mesma quantidade. Os navios podem estar em várias línguas
+													desque tenham as mesmas dimensões.
+												*/
+												bool areTheSame = sameShips(P1,P2);
+												while(!areTheSame)
+												{
+													isThere.close();
+													system("cls");
+													columnCenter();
+													lineCenter("ERROR");
+													cout << endl << endl;
+													lineCenter( "You need to have the same type and number of ships");
+													Sleep(1500);
+													system("cls");
+
+													columnCenter();
+													lineCenter("BOARD FILE");
+													cout << endl << endl;
+													lineCenterEmpty();
+													cin >> boardFileName;
+
+													isThere.open("board_files/" + boardFileName);
+													while(!isThere.good())
+													{
+														isThere.close();
+														system("cls");
+														columnCenter();
+														lineCenter("ERROR");
+														cout << endl << endl;
+														lineCenter( "The file you specified does not exist");
+														Sleep(1500);
+														system("cls");
+
+														columnCenter();
+														lineCenter("BOARD FILE");
+														cout << endl << endl;
+														lineCenterEmpty();
+														cin >> boardFileName;
+
+														isThere.open("board_files/" + boardFileName);
+													}
+													isThere.close();
+													Player burner(p2Name,boardFileName);
+													P2 = burner;
+													areTheSame = sameShips(P1,P2);
+												}
+
 
 												system("cls");
 												columnCenter();
@@ -504,10 +720,12 @@ int menu()
 												//inicia o jogo tendo em conta a ordem dos players (gravada em index)
 												if(P1.getIndex() == 1)
 													game(P1,P2);
-												else
+												if(P2.getIndex() == 1)
 													game(P2,P1);
 
-
+											
+												i++;
+												pointer = 3;
                                         } break;
 
                                         case 1:
@@ -575,6 +793,11 @@ int menu()
                                         {
                                                 return 0;
                                         } break;
+
+										 case 3:
+                                        {
+                                           
+                                        } break;
                                 }
                                 break;
                         }
@@ -584,17 +807,4 @@ int menu()
         }
        
         return 0;
-}
-
-
-
-
-int main()
-{
-
-	
-	menu();
-	
-
-	return 0;
 }

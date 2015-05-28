@@ -13,21 +13,22 @@ void columnCenterBoard()
 	for(int  i = 0; i < 4;i++)
 		cout << endl;
 }
-void lineCenterBoard(int colMax)
-{
-	
-	int pos=(int)((80 - colMax)/2);
-	for(int i=0;i<pos;i++)
-	cout<<" ";
- 
-}
 
+/*
+	Construtor default. Permitea criação de variáveis do tipo Board sem qualquer tipo
+	de argumentos.
+*/
 Board::Board()
 {
 
 }
 
-
+/*
+	Contrutor da classe Board. Recebe como argumento um ficheiro
+	criado pelo primeiro trabalho prático, modificado. Abre o ficheiro
+	em modo de leitura e recolhe a infomação relativa aos navios(tamanho,tipo,posição...)
+	e relativa ao tamanho do tabuleiro.
+*/
 Board::Board(const string &filename)
 {
 	ifstream ficheiroconfig;							// Abre o ficheiro com as configurações com o 
@@ -42,8 +43,8 @@ Board::Board(const string &filename)
 	getline(ficheiroconfig, columnsStr);
 
 
-	numLines = atoi(linesStr.c_str());	//".c_str()" passa uma string para um array de chars.
-	numColumns = atoi(columnsStr.c_str());	// A função "atoi" retorna um inteiro a partir de um array de chars
+	numLines = atoi(linesStr.c_str());	
+	numColumns = atoi(columnsStr.c_str());	
 
 
 
@@ -64,8 +65,8 @@ Board::Board(const string &filename)
 		getline(ficheiroconfig, color);				
 
 		unsigned int sizeInt,colorInt;
-		sizeInt = atoi(size.c_str());			// Mais uma vez, convertemos os números (que estão em formato
-		colorInt = atoi(color.c_str());			// "string") para o formato "inteiro"
+		sizeInt = atoi(size.c_str());			
+		colorInt = atoi(color.c_str());			
 
 		Position<char> position;
 		position.lin = posChar.c_str()[0];
@@ -76,7 +77,7 @@ Board::Board(const string &filename)
 		ships.push_back(defaultShip);
 	}
 
-	ficheiroconfig.close();	 //Já nao iremos necessitar mais do ficheiro de configuração. Fecha-se o mesmo.
+	ficheiroconfig.close();	
 
 	fillBoard();
 
@@ -109,6 +110,12 @@ void setColor(unsigned int color, unsigned int background_color)
 
 
 
+/*
+	"fillBoard" é como uma função refresh. Começa por limpar o tabuleiro preenchendo-o com
+	 -1 (mar) e, de seguida coloca cada um dos navios presentes no vector "ships". "type"
+	 é um indicatvo para a posição do navio no vetor e "block" representa o número da parcela do navio
+	 Eg. PPP é composto por 3 parcelas
+*/
 void Board::fillBoard()
 {
 	for(unsigned int i = 0; i < board.size(); i++)
@@ -116,7 +123,7 @@ void Board::fillBoard()
 		for(unsigned int ii = 0; ii < board[i].size(); ii++)
 		{
 			board[i][ii].type = -1;
-			board[i][ii].index = 0;
+			board[i][ii].block = 0;
 		}
 
 	}
@@ -132,18 +139,28 @@ void Board::fillBoard()
 			for(unsigned int z = 0; z < ships[i].getSize(); z++)
 			{
 				board[shipPostion.lin - 1][shipPostion.col + z - 1].type = i;
-				board[shipPostion.lin - 1][shipPostion.col + z - 1].index = z;
+				board[shipPostion.lin - 1][shipPostion.col + z - 1].block = z;
 			}
 		if(ships[i].getOrientation() == 'V')
 			for(unsigned int w = 0; w < ships[i].getSize(); w++)
 			{
 				board[shipPostion.lin + w - 1][shipPostion.col - 1].type = i;
-				board[shipPostion.lin + w - 1][shipPostion.col - 1].index = w;
+				board[shipPostion.lin + w - 1][shipPostion.col - 1].block = w;
 
 			}
 	}
 }
 
+
+/*
+	Grande parte de "putShip" passa por verificar se o navio "s", tendo em conta as suas
+	características pode ou não ser colocado no tabuleiro. Para isso verifica-se se a posição
+	de onde este se extende está fora dos limites. De seguida verifica-se se excede o numero 
+	de linhas ou colunas máximo do tabuleiro ou se trespassa uma posição já ocupada por outra
+	embarcação, tendo em conta se está na horizontal ou na vertical. Caso esteja em posição ilegal,
+	a função retorna 0 caso contrário, é feito o push_back para o vector "ships" e chama-se a função
+	refresh "fillBoard()" que atualiza o tabuleiro já com o novo navio e retorna 1.
+*/
 bool Board::putShip(const Ship &s)
 {
 	Position<char> shipPositionChar = s.getPosition();
@@ -177,16 +194,22 @@ bool Board::putShip(const Ship &s)
 			}
 		}
 
-			/*		Caso o navio "s" não esteja numa posição inválida (fora dos limites do tabuleiro ou
-			sobreposto em relação a outro navio já colocado) adiciona-se o mesmo ao vetor "ships"
-			e é chamada a função "fillboard" para que seja feita a atualização do vetor de vetores
-			"boards" em relação a "ships". Na prática, o index do novo navio, "s" é adicionado nas posições
-			corretas em "boards"						*/
+		
 			ships.push_back(s);
 			fillBoard();
 			return 1;
 }
 
+
+/*
+	"moveShips" tenta mover todos os navios do tabuleiro um a um. Para podermos testar a colocação do navio
+	em todo o espaço disponivel inclusivé o espaço ocupado anteriormente pelo próprio temos de o retirar do vector
+	"ships" e fazer um refresh ao tabuleiro com "fillboard". Começamos pelo último navio n vector e usamos a função
+	"pop_back". No final da iteração para o primeiro navio rodamos o vetor de modo a podermos fazer "pop_back" do navio seguinte.
+	Repete-se o processo até que voltemos à posição inicial. 
+	 Uma vez que por vezes o processo de colocação aleatória do navio é demasiado demorado, limitamos cada um a 20 tentativas após
+	 as quais o navio fica na posição original.
+	*/
 void Board::moveShips()
 {
 	for(int i = 0;i < ships.size(); i++)
@@ -216,6 +239,10 @@ void Board::moveShips()
 	}
 }
 
+/*
+	A função attack  tal como o nome indica, recebe uma bomba como argumento procura no tabuleiro o barco a o bloco a atacar e 
+	retorna o valor da função "attack" de Ship. Caso a posição a ser atacada já o tenha sido, retorna 0, caso contrário retorna 1.
+*/
 bool Board::attack(const Bomb &b)
 {
 	Position<int> impactPos,shipPos;
@@ -242,10 +269,15 @@ bool Board::attack(const Bomb &b)
 	if(ships[shipIndex].getOrientation() == 'V')
 		partNumber = (impactPos.lin - shipPos.lin) + 1;
 
-	ships[shipIndex].attack(partNumber);
-	return 1;
+	return ships[shipIndex].attack(partNumber);
+
 }
 
+
+/*
+	Imprime o tabuleiro na consola. Imprime as coordenadas a uma cor diferente os navios com a cor correspondente e 
+	e os blocos já destruídos de cada navio a preto para facilitar a distinção.
+*/
 void Board::display() const
 {
 	columnCenterBoard();
@@ -295,8 +327,9 @@ void Board::display() const
 				setColor(shipToPrint.getColor(), LIGHTGRAY);
 				status = shipToPrint.getStatus();
 				cout << setw(2);
-				if(islower( status.c_str()[board[i][ii].index] ) )
+				if(islower( status.c_str()[board[i][ii].block] ) )
 				{
+					setColor(BLACK, LIGHTGRAY);
 					loweredSymbol = tolower( ships[board[i][ii].type].getSymbol() ) ;
 					cout << loweredSymbol;
 				}
@@ -317,8 +350,33 @@ void Board::display() const
 
 }
 
+
+//Permite alterar o vector "ships" fora da classe. É usada quando queremos fazer desaparecer os navios depois de destruidos.
+void Board::giveShips(vector<Ship> s)
+{
+	ships = s;
+}
+
+
+
+
 /*
-"getShips" retorna o vector de navios colocados no tabuleiro
+Aqui fazemos o overloading do operador "<<"
+Uma vez que a única função que imprime no ecrã é 
+a função "display", é tambem a úica a ser chamada. */
+ostream& operator<< (ostream &out, Board &toDisplay)
+{
+	toDisplay.display();
+	return out;
+
+}
+
+
+
+
+/*
+	Todas as funções que se seguem limitam-se a retornar valores
+	de variáveis privadas.
 */
 vector<Ship> Board::getShips()
 {
@@ -359,26 +417,9 @@ int Board::getMaxColumn()
 	return numColumns - 1;
 }
 
-void Board::changeStatus(int shipPos, string newStatus)
-{
-	ships[shipPos].giveStatus(newStatus);
-
-}
 
 
 
 
-
-
-/*
-Aqui fazemos o overloading do operador "<<"
-Uma vez que a única função que imprime no ecrã é 
-a função "display", é tambem a úica a ser chamada. */
-ostream& operator<< (ostream &out, Board &toDisplay)
-{
-	toDisplay.display();
-	return out;
-
-}
 
 
